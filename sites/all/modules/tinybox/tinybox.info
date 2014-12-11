@@ -1,0 +1,13 @@
+name = Tinybox
+description = TinyBox is a lightweight and standalone modal window script. Supports images, iframes, HTML and Ajax requests natively.
+version = "6.x-1.0-beta2"
+core = "6.x"
+project = "tinybox"
+
+
+; Information added by drupal.org packaging script on 2012-11-26
+version = "6.x-1.0-beta2"
+core = "6.x"
+project = "tinybox"
+datestamp = "1353971022"
+

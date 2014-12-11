@@ -1,0 +1,13 @@
+<?php
+// $Id: media_smugmug_video.module,v 1.3 2010/04/05 03:42:35 winston Exp $
+
+/**
+ *  @file
+ *  Embedded Video Field provider file for Smugmug.com.
+ */
+
+function media_smugmug_video_emfield_providers($module, $provider = NULL) {
+  if ($module == 'emvideo') {
+    return drupal_system_listing("smugmug_video\.inc", drupal_get_path('module', 'media_smugmug_video') ."/providers", 'name', 0);
+  }
+}

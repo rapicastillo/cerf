@@ -1,0 +1,12 @@
+; $Id$
+name = Chaos Tools Custom Plugins
+description = Some extra plugins for Chaos Tools that mimic CCK fields (They are not CCK fields)
+core = 6.x
+package = Chaos tool suite
+dependencies[] = ctools
+; Information added by drupal.org packaging script on 2010-09-10
+version = "6.x-1.2"
+core = "6.x"
+project = "ctoolscustomplugins"
+datestamp = "1284094306"
+

@@ -1,0 +1,265 @@
+<?php
+// $Id: iframe_page.module,v 1.7 2010/09/11 13:09:55 mikl Exp $
+
+/**
+ * @file
+ * Drupal module, proving an iframe page node type.
+ */
+
+// Matches a string composed of one or more digits, followed by either 
+// a decimal point with one or more digits and a percent sign after it,
+// just a percent sign or nothing.
+define('IFRAME_PAGE_PERCENT_MATCHER', '/^\d+(?:\.\d+%|%)?$/');
+
+/**
+ * Implementation of hook_perm().
+ */
+function iframe_page_perm() {
+  return array(
+    'create iframe pages',
+    'delete own iframe pages',
+    'delete any iframe pages',
+    'edit own iframe pages',
+    'edit any iframe pages',
+  );
+}
+
+/**
+ * Implementation of hook_node_info().
+ */
+function iframe_page_node_info() {
+  return array(
+    'iframe_page' => array(
+      'name' => t('iframe page'),
+      'module' => 'iframe_page',
+      'description' => t('An iframe page is a page where the main content is an iframe, usually containing content from an external site.'),
+      'title_label' => t('Title'),
+      'body_label' => t('Description'),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_access().
+ */
+function iframe_page_access($op, $node, $account) {
+  switch ($op) {
+    case 'create':
+      return user_access('create iframe pages', $account);
+
+    case 'update':
+      if (user_access('edit any iframe pages', $account) || (user_access('edit own iframe pages', $account) && ($account->uid == $node->uid))) {
+        return TRUE;
+      }
+      break;
+    case 'delete':
+      if (user_access('delete any iframe pages', $account) || (user_access('delete own iframe pages', $account) && ($account->uid == $node->uid))) {
+        return TRUE;
+      }
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_form().
+ *
+ * Provides the node editing form.
+ */
+function iframe_page_form(&$node) {
+  // The site admin can decide if this node type has a title and body, and how
+  // the fields should be labeled. We need to load these settings so we can
+  // build the node form correctly.
+  $type = node_get_types('type', $node);
+
+  $form = array();
+
+  if ($type->has_title) {
+    $form['title'] = array(
+      '#type' => 'textfield',
+      '#title' => check_plain($type->title_label),
+      '#required' => TRUE,
+      '#default_value' => $node->title,
+      '#weight' => -5,
+    );
+  }
+
+  $form['iframe'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('iframe configuration'),
+    '#weight' => -3,
+  );
+
+  $form['iframe']['url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('iframe URL'),
+    '#description' => t('The URL for the contents that will be shown inside the iframe. If enabled, session ID and GET parameters will get appended to this URL as query parameters.'),
+    '#default_value' => $node->url,
+    '#required' => TRUE,
+    // URLs longer than 2048 characters are not widely supported.
+    '#maxlength' => 2048,
+  );
+
+  $form['iframe']['height'] = array(
+    '#type' => 'textfield',
+    '#title' => t('iframe height'),
+    '#description' => t('The height of the iframe, in pixels or percent.'),
+    '#default_value' => ($node->height > 0) ? $node->height : 550,
+    '#size' => 5,
+  );
+
+  $form['iframe']['width'] = array(
+    '#type' => 'textfield',
+    '#title' => t('iframe width'),
+    '#description' => t('The width of the iframe, in pixels or percent.'),
+    '#default_value' => ($node->width > 0) ? $node->width : 750,
+    '#size' => 5,
+  );
+
+  $form['iframe']['send_session_id'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Send session ID'),
+    '#description' => t('Sends the user’s session ID along as query parameter to the iframe URL.'),
+    '#default_value' => $node->send_session_id,
+  );
+
+  $form['iframe']['send_get_parameters'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Send GET parameters'),
+    '#description' => t('Sends the GET parameters along as query parameter to the iframe URL.'),
+    '#default_value' => $node->send_get_parameters,
+  );
+
+  if ($type->has_body) {
+    // In Drupal 6, we can use node_body_field() to get the body and filter
+    // elements. This replaces the old textarea + filter_form() method of
+    // setting this up. It will also ensure the teaser splitter gets set up
+    // properly.
+    $form['body_field'] = node_body_field($node, $type->body_label, $type->min_word_count);
+  }
+
+  return $form;
+}
+
+/**
+ * Implementation of hook_validate().
+ */
+function iframe_page_validate($node, &$form) {
+  $url = trim($node->url);
+
+  if (!filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED)) {
+    form_set_error('url', t('Invalid URL.'));
+  }
+
+  $height = trim($node->height);
+  if (!preg_match(IFRAME_PAGE_PERCENT_MATCHER, $height) || $height < 2) {
+    form_set_error('height', t('Height must be either a percentage (like 25.1%) or a number larger than one.'));
+  }
+
+  $width = trim($node->width);
+  if (!preg_match(IFRAME_PAGE_PERCENT_MATCHER, $width) || $width < 2) {
+    form_set_error('width', t('Width must be either a percentage (like 95.8%) or a number larger than one.'));
+  }
+}
+
+/**
+ * Implementation of hook_insert().
+ */
+function iframe_page_insert($node) {
+  drupal_write_record('iframe_pages', $node);
+}
+
+/**
+ * Implementation of hook_update().
+ */
+function iframe_page_update($node) {
+  // If this is a new node or we're adding a new revision.
+  if ($node->revision) {
+    iframe_page_insert($node);
+  }
+  else {
+    drupal_write_record('iframe_pages', $node, array('vid'));
+  }
+}
+
+/**
+ * Implementation of hook_load().
+ */
+function iframe_page_load($node) {
+  $additions = db_fetch_object(db_query('SELECT * FROM {iframe_pages} WHERE vid = %d', $node->vid));
+  unset($additions->nid, $additions->vid);
+
+  return $additions;
+}
+
+
+/**
+ * Implementation of hook_delete().
+ */
+function iframe_page_delete($node) {
+  // Notice that we're matching all revisions, by using the node's nid.
+  db_query('DELETE FROM {iframe_pages} WHERE nid = %d', $node->nid);
+}
+
+
+
+/**
+ * Implementation of hook_view().
+ */
+function iframe_page_view($node, $teaser = FALSE, $page = FALSE) {
+  $node = node_prepare($node, $teaser);
+  $node->content['iframe_page'] = array(
+    '#value' => theme('iframe_page_iframe', $node),
+    '#weight' => -3,
+  );
+
+  return $node;
+}
+
+/**
+ * Implementation of hook_nodeapi().
+ */
+function iframe_page_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  switch ($op) {
+    case 'delete revision':
+      // Notice that we're matching a single revision based on the node's vid.
+      db_query('DELETE FROM {iframe_pages} WHERE vid = %d', $node->vid);
+      break;
+    case 'presave':
+      if ($node->type == 'iframe_page') {
+        // Trim our fields before saving.
+        $node->url = trim($node->url);
+        $node->height = trim($node->height);
+        $node->width = trim($node->width);
+      }
+  }
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function iframe_page_theme($existing, $type, $theme, $path) {
+  return array(
+    'iframe_page_iframe' => array(
+      'arguments' => array('node' => NULL),
+    ),
+  );
+}
+
+/**
+ * Theme function to render the iframe markup.
+ */
+function theme_iframe_page_iframe($node) {
+  $params = ($node->send_get_parameters) ? $_GET : array();
+
+  // Never send the q parameter along, since it messes up Drupal sites.
+  unset($params['q']);
+
+  if ($node->send_session_id && user_is_logged_in()) {
+    $params['sid'] = $GLOBALS['user']->sid;
+  }
+
+  $url = url($node->url, array('query' => $params));
+
+  return '<iframe src="' . $url . '" height="' . $node->height . '" width="' . $node->width . '" frameborder="0" scrolling="no" style="overflow: hidden;"></iframe>';
+}
+

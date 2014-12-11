@@ -1,0 +1,93 @@
+#main-content {
+	font-size: 10px;
+	font-weight: bold;
+	color: #006cb6;
+}
+#main-content table {
+	width: 100%;
+	margin: 0px;
+}
+#main-content table td.data,
+#main-content table th.data {
+	font-size: inherit;
+	width: 20px !important; 
+}
+#main-content table td.data {
+	text-align: right;
+}
+
+#main-content table td.data.data-text {
+	text-align: left;
+	font-size: 10px;
+}
+#main-content table td.data.data-text span {
+	font-size: 10px;
+}
+#main-content table tr th.header,
+#main-content table tr th {
+	background-color: gray;
+	color: white;
+}
+
+#main-content table tr th.header.headerSortUp,
+#main-content table tr th.header.headerSortDown {
+	background-color: #8dbdd8;
+	color: #333;
+}
+
+#main-content h2{
+	background-color: #EFAA1F;
+	color: white;
+	font-size: inherit;
+	padding: 5px;
+	margin: 0px;
+}
+
+table.tablesorter tbody td {
+	color: inherit;
+	padding: 0px;
+	
+}
+
+#main-content table tr td.country-data {
+	width: 1000px;
+	padding: 1px;
+}
+
+#main-content table tr td.country-data .country-data-name {
+	display: inline-block;
+	margin-left: 2px;
+	vertical-align: top;
+	width: 100%;
+}
+
+#main-content table tr td.table-sort-ranking {
+	width: 20px !important; 
+}
+
+#main-content table tr td.country-data,
+#main-content table tr td.data.total {
+	background-color: #e3e7f5
+}
+
+#main-content table tr td.data.overall-total {
+	background-color: #006cb6;
+	color: white;
+}
+
+#main-content table tr th.header span, 
+#main-content table tr td.data span {
+	display: inline-block;
+	width: 100%;
+	font-size: 9px;
+}
+
+
+#main-content table tr th.header {
+	background-position: 100% 8px;
+	vertical-align: top;
+}
+
+#main-content table tr td.flagged_red span {
+	color: red;
+}

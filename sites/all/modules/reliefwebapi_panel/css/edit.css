@@ -1,0 +1,63 @@
+.country-checkbox .form-item .form-item,
+.primary-country-checkbox .form-item .form-item,
+.source-checkbox .form-item .form-item,
+.content-format-checkbox .form-item .form-item,
+.theme-checkbox .form-item .form-item {
+	display: inline-block;
+	width: 180px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow-x: hidden;
+}
+
+.country-checkbox .form-checkboxes,
+.primary-country-checkbox .form-radios,
+.source-checkbox .form-checkboxes,
+.content-format-checkbox .form-checkboxes,
+.theme-checkbox .form-checkboxes {
+	height: 200px;
+	overflow-y: scroll;
+}
+
+.primary-country-checkbox,
+.country-checkbox,
+.source-checkbox,
+.content-format-checkbox,
+.theme-checkbox {
+	float: left;
+	width: 46%;
+	margin-right: 2%; 
+}
+
+.rw-chosen-item-item {
+	float: left;
+	position: relative;
+	padding: 5px;
+	background-color: #eee;
+	padding-right: 22px;
+	
+	margin: 0 2px 2px 0;
+}
+
+.rw-chosen-item-item .del-item {
+	font-size: 18px;
+	position: absolute;
+	top: 3px;
+	right: 6px;
+	color: #aaa;
+	font-weight: bold;
+	
+	cursor: pointer;
+}
+
+.text-filter {
+	padding: 4px;
+	font-size: 16px;
+	width: 281px;
+	margin: 4px 0px;
+	border: 1px solid #BBB;
+}
+
+.post-num-on-single, .show-thumb-on-single, .show-blurb-on-single {
+	display: none;
+}

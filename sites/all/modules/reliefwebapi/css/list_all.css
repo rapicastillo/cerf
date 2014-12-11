@@ -1,0 +1,56 @@
+#reliefwebapi-block-items-filter-page #rwapi-filter-items .rwapi-filter-item {
+	width: 511px;
+	margin: 15px 0;
+	
+}
+
+#rwapi-filter-pagination .pagination-item {
+	display: inline-block;
+	margin: 2px;
+	padding: 5px;
+	padding-top: 1px;
+}
+
+#rwapi-filter-pagination .pagination-item.current-item {
+	background-color: #DDDDDD;
+}
+
+#reliefwebapi-block-items-filter-page #rwapi-filter-items .rwapi-filter-art-spi {
+	vertical-align: top;
+	margin-left: 4px;
+	max-width: 410px;
+	
+	max-height: 100px;
+	display: inline-block;
+	overflow-y: hidden;
+}
+
+#reliefwebapi-block-items-filter-page #rwapi-filter-items .rwapi-filter-art-spi {
+	overflow-x: hidden;
+}
+
+#reliefwebapi-block-items-filter-page.reliefweb-layout-tile .rwapi-filter-item{
+	width: 200px !important;
+	
+	display: inline-block;
+	margin-right: 5px;
+	margin-bottom: 5px;
+	
+	padding: 3px;
+}
+
+#reliefwebapi-block-items-filter-page.reliefweb-layout-tile .rwapi-filter-item img {
+	width: 170px;
+	height: 170px;
+}
+
+
+#reliefwebapi-block-items-filter-page.reliefweb-layout-tile .rwapi-filter-item a {
+	display: inline-block;
+	height: 45px;
+}
+
+.rwapi-item-sq-img {
+	max-width: 90px;
+	max-height: 90px;
+}

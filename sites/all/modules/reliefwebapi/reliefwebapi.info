@@ -1,0 +1,4 @@
+name = Relief Web API -- Interface
+package = ReliefWeb Interface Suite
+description = A module that will reflect the options for Relief Web
+core = 6.x

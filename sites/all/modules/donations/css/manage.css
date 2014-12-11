@@ -1,0 +1,107 @@
+#don-cont-editor-container table td > span,
+#don-cont-editor-container table td > div  {
+	width: 100px;
+	display: inline-block;
+}
+
+#don-cont-editor-container #don-names-list table td > div { }
+
+#don-cont-editor-container form.edit-amount-value  { display: none; }
+#don-cont-editor-container form.edit-amount-value input[name="amount"]{
+	width: 70px;
+	background: #FFFFFF;
+	border: 1px solid #DDD;
+	font-size: 10px;
+	height: 12px;
+	line-height: 12px;
+
+}
+
+/**
+ * 	Filter Area
+ */
+
+#don-cont-filter-container {
+	padding: 10px;
+	border: 1px solid #EEE;
+	background: #E7E7E7 !important;
+	
+	margin-bottom: 10px;
+}
+
+#don-cont-filter-container form label {
+	font-weight: normal;
+	padding: 3px;
+	margin-right: 5px;
+}
+
+#don-cont-filter-container h5 {
+	margin-top: 10px;
+}
+
+#don-cont-filter-container #filter-donor {
+	font-size: 14px; 
+	padding: 2px;
+	border: 1px solid #ddd;
+	width: 500px;
+	
+	background: #FFF !important;
+
+}
+.don-donor-list-label td {
+	padding: 3px;
+}
+
+
+#don-flash-notifier {
+	background-color: #C5E3BF;
+	width: 500px;
+	padding: 5px 0;
+	position: fixed;
+	left: 50%;
+	margin-left: -250px;
+	border: solid #A9C9A4;
+	border-width: 2px;
+	margin-top: -7px;
+	top: 10px;
+	
+	text-align: center;
+	color: #333333;
+}
+
+.page-content .content-wrapper {
+	position: relative
+}
+
+
+.year_hidden {
+	display: none;
+}
+
+.amount_key_hidden {
+	display: none;
+}
+#don-cont-editor-container table .don-donor-list-label td > div.don-name-itm
+ {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    
+    width: 150px;
+}
+
+#don-fund-list table td, #don-fund-list table th {
+	padding: 5px 4px ;
+}
+
+#don-fund-hdr table tr td{
+	padding: 5px 4px 4px;
+}
+
+td.flagged_red span {
+	color: red;
+} 
+
+hr {
+	display: block;
+}

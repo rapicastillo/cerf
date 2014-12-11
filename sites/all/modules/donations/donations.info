@@ -1,0 +1,5 @@
+name = Donations break down table
+package = VFour
+description = Block to display donor countries and the amount they have donated by year in table format
+core = 6.x
+version = 6.x

@@ -1,0 +1,681 @@
+<?php
+
+
+/**
+ *
+ *
+ **/
+
+function _user_is_auth(){
+
+    global $user;
+
+    if(in_array("administrators",$user->roles)){
+        return true;
+    }
+    else{
+        return false;
+    }
+    
+   
+}
+
+function donations_menu() {
+	$items = array();
+	
+	$items['admin/settings/donations_manager'] = array(
+    'title' => 'Donations Manager',
+    'description' => 'Manage the donations of donor countries and organizations',
+    'page callback' => '_donations_manager',
+    'page arguments' => array('_donations_manager'),
+    'access arguments' => array('administer donations settings'),
+    'type' => MENU_NORMAL_ITEM,
+   );
+   
+   $items['admin/settings/donations_manager/view_options'] = array(
+   	'title' => 'View Options',
+   	'description' => 'Manage what gets seen in the donor countries and organizations area',
+   	'page callback' => 'donations_view_options', 
+   	'page arguments' => array('donations_view_options'), 
+   	'access arguments' => array('administer donations settings'), 
+   	'type' => MENU_NORMAL_ITEM
+   );
+   
+   $items['admin/settings/donations_manager/save'] = array(
+    'title' => 'Save Manager',
+    'description' => 'Save the donations of donor countries and organizations',
+    'page callback' => '_donations_save_donation_changes',
+    'page arguments' => array('_donations_save_donation_changes'),
+    'access arguments' => array('administer donations settings'),
+    'type' => MENU_CALLBACK,
+   );
+   
+   $items['admin/settings/donations_manager/list'] = array(
+   	'title' => 'List Manager',
+   	'description' => 'Retrieve Items from database', 
+   	'page callback' => '_build_donations_area', 
+   	'page arguments' => array('_build_donations_area'),
+   	'access arguments' => array('administer donations settings'), 
+   	'type' => MENU_CALLBACK,
+   );
+	
+	return $items;
+}
+
+function donations_perm() {
+	return array("administer donations settings");
+}
+/**
+ *
+ *
+ ***/
+
+function donations_block($op='list',$delta=0,$edit=array()){
+    
+    $block = array();
+    $html  = "";
+    
+    switch($op){
+        
+        case "list":
+            
+            $block[0]["info"] = "Breakdown table of Donor countries and amounts per year";
+            $block[1]["info"] = "Country Break down for single year";
+            
+        break;
+        
+        case "view":
+            $path = drupal_get_path('module', 'donations');
+	
+			drupal_add_css($path . "/js//tablesorter/themes/blue/style.css");
+			drupal_add_css($path . "/css/view.css");
+			drupal_add_js($path . "/js/tablesorter/jquery.tablesorter.js");
+			drupal_add_js($path . "/js/view.js");
+					
+            switch($delta){
+            
+                case 0:
+					//$years = _get_min_max_year();
+					list($min, $max) = _get_min_max_year();
+					
+					list($donations, $donor_total, $has_content) = _donations_get_all($min, $max);
+					$overall_total_per_column = _donations_preprocess($donations, $donor_total, $min, $max);
+					
+                   	/*
+                    //--- get year bounds by what is in the donations table
+                   $years                                   = _get_min_max_year();
+                   list($donors,$flags,$unpaid,$donor_ids)  = _get_donors_and_donations($years["min"],$years["max"]);
+                   $html                                    = _format_donors_table($donors,$years["min"],$years["max"],$flags,$unpaid,$donor_ids);
+                  // var_dump($donors);
+                   */
+				   $block["subject"]   = "";
+                   $block["content"]   = 
+                   						//theme("_donations_debug_items", array("Individual Amount" => $donations, "Donor Total" => $donor_total, "Overall Total per Column" => $overall_total_per_column));
+                   						theme("_donations_view_items", $donations, $donor_total, $overall_total_per_column, $min, $max);	
+                   
+                break;
+            
+                case 1:
+                    
+                    $donations = array();
+                    if(is_numeric(arg(3))){
+                        $year = arg(3);
+                       // list($donors,$flags,$unpaid,$donor_ids) = _get_donors_and_donations($year,$year);
+                       // $html                                   = _format_donors_table($donors,$year,$year,$flags,$unpaid,$donor_ids);
+                        list($donations, $donor_total, $has_content) = _donations_get_all($year, $year);
+						$overall_total_per_column = _donations_preprocess($donations, $donor_total, $year, $year);
+                    }
+                   
+                    $header = "";
+                    $footer = "";
+                   
+                    $header = "<p style=\"text-align: center;\"><strong>CERF Pledges and Contributions</strong><strong> {$year}</strong></p>";
+                              
+                    $footer = "";
+                    $block["subject"] = "";
+                    $block["content"] =
+                    			//theme("_donations_debug_items", array("Individual Amount" => $donations, "Donor Total" => $donor_total, "Overall Total per Column" => $overall_total_per_column)); 
+                    			theme("_donations_view_items", $donations, $donor_total, $overall_total_per_column, $year, $year);
+                   
+                break;
+				
+            }
+            
+        break;
+        
+    }
+    
+    return $block;
+    
+}//end donations_block
+
+function _donations_preprocess($donations, &$donor_total, $year_start, $year_end) {
+	
+	$overall_total_per_column = array("megatotal" => array("paid" => 0, "pledge" => 0, "breakdown" => array()));
+	#initialize
+	for($i = $year_start; $i <= $year_end; $i ++ ) {
+		$overall_total_per_column[$member_type_key] = array();
+		$overall_total_per_column[$member_type_key][$i] = new stdClass();
+		$overall_total_per_column["megatotal"]["breakdown"][$i] = new stdClass();
+		
+		
+		$amount_types = variable_get($i . "-amounts-list-for-donations", array());
+		if (count($amount_types)) {
+			foreach ($amount_types as $key ) {
+				 $overall_total_per_column[$member_type_key][$i]->$key = 0;
+				$overall_total_per_column["megatotal"]["breakdown"][$i]->$key = 0;
+			}
+		}
+	}
+	
+	foreach($donations as $member_type_key => $member) {
+		$overall_total_per_column[$member_type_key] = array("pledge" => 0, "paid" => 0);
+		
+		foreach ($member as $id => $member_info) {
+				
+			#for donor breakdown...	
+			$donor_total[$id] = array("overall" => $donor_total[$id], "pledge" => 0, "paid" => 0);
+			
+			
+			$yearly_report = $member_info->yearly_report;
+			for ($i = $year_start; $i <= $year_end; $i ++ ) {
+				
+				$amount_types = variable_get($i . "-amounts-list-for-donations", array());
+				foreach ( $amount_types as $key ) {
+					
+					$overall_total_per_column[$member_type_key][$i]->$key += $yearly_report[$i]->$key;
+					$overall_total_per_column["megatotal"]["breakdown"][$i]->$key += $yearly_report[$i]->$key;
+					
+					if($key == 'amount') {
+						$donor_total[$id]["paid"] +=  $yearly_report[$i]->$key;
+						$overall_total_per_column["megatotal"]["paid"] +=  $yearly_report[$i]->$key;
+						$overall_total_per_column[$member_type_key]["paid"] +=  $yearly_report[$i]->$key;
+					} else {
+						$donor_total[$id]["pledge"] +=  $yearly_report[$i]->$key;
+						$overall_total_per_column["megatotal"]["pledge"] +=  $yearly_report[$i]->$key;
+						$overall_total_per_column[$member_type_key]["pledge"] +=  $yearly_report[$i]->$key;
+					}
+					
+				}
+			}
+		}
+	}
+	return $overall_total_per_column;	
+}
+
+function donations_view_options() {
+
+	$path = drupal_get_path('module', 'donations');
+	
+	drupal_add_css($path . "/css/view_options.css");
+	drupal_add_js($path . "/js/view_options.js");
+	
+	$output = drupal_get_form('donations_view_options_form');
+	
+	return $output;	
+}
+
+/**
+ *
+ *
+ *
+ ***/
+function _get_min_max_year(){
+    
+    //--- get min and max years present in the donations table
+    
+    $sql        = " SELECT
+                        max( field_year_value ) as max_year,
+                        min( field_year_value ) as min_year
+                    FROM
+                        content_type_donations";
+    $results    = db_query($sql);
+    $row        = db_fetch_object($results);
+    $max        = isset($row->max_year) ? $row->max_year : 2013;
+    $min        = isset($row->min_year) ? $row->min_year : 2006;
+    
+    
+    return array($min, $max);
+    
+}
+
+function _donations_manager() {
+	$path = drupal_get_path('module', 'donations');
+	
+	drupal_add_css($path . "/css/manage.css");
+	drupal_add_js($path . "/js/manage.js");
+	
+	$block = array();
+	$data = array();
+	
+	list($min, $max) = _get_min_max_year();
+	list($donations, $donor_total, $has_content) = _donations_get_all($min, $max, TRUE);
+	
+	
+	/*
+	$data_memberfield = array(_build_donations_area(0), _build_donations_area(1), _build_donations_area(2));
+	*/
+	$sql = "SELECT 	n.nid AS id, n.title AS name, ctd.field_member_value AS member
+				FROM content_type_donors ctd 
+				JOIN node n ON n.nid=ctd.nid
+				WHERE ctd.field_member_value=1
+				ORDER BY name ASC 
+				";
+	
+	$result_donors = db_query($sql);
+	
+	#Collate the donors
+	$donor_id = array();
+	$donor_json = array();
+	while ( $donor = db_fetch_object($result_donors) ) {
+		$donor_json[$donor->id] = array("id" => $donor->id, "name" => $donor->name);
+	}
+	
+	
+	#Private Donors
+	$sql = "SELECT 	n.nid AS id, n.title AS name, ctd.field_member_value AS member
+				FROM content_type_donors ctd 
+				JOIN node n ON n.nid=ctd.nid
+				WHERE ctd.field_member_value=2
+				ORDER BY name ASC 
+				";
+	
+	$regional_donors_results = db_query($sql);
+	$regional_donors = array();
+	while ( $donor_priv = db_fetch_object($regional_donors_results) ) {
+		$regional_donors[''. $donor_priv->id] = array("id" => $donor_priv->id, "name" => $donor_priv->name);
+	}
+	
+	#Private Donors 
+	$sql = "SELECT 	n.nid AS id, n.title AS name, ctd.field_member_value AS member
+				FROM content_type_donors ctd 
+				JOIN node n ON n.nid=ctd.nid
+				WHERE ctd.field_member_value=0
+				ORDER BY name ASC 
+				";
+	
+	$result_donors = db_query($sql);
+	$private_donors = array();
+	while ( $donor_priv = db_fetch_object($result_donors) ) {
+		$private_donors[''. $donor_priv->id] = array("id" => $donor_priv->id, "name" => $donor_priv->name);
+	}
+	
+	#Collect the data
+	$debug_item = array("item " => $path);
+	
+	
+	$donor_render = array();
+	$donor_render["member_states"] = render_donations_list($donations[1], $donor_json);
+	$donor_render["regional"] = render_donations_list($donations[2], $regional_donors);
+	$donor_render["private"] = render_donations_list($donations[5], $private_donors);
+	
+	return theme("_donations_theme_manage", $donor_render, $donor_json, $regional_donors, $private_donors);
+}
+
+function render_donations_list($data, $donor_json) {
+	return theme("_donations_list_theme", $data, $donor_json);
+}
+function _donations_get_all($min, $max, $hide_zero = TRUE) {
+	$current_date = date('Y');
+	$donations = db_query("SELECT
+							donations.nid as nid, 
+							donations.field_year_value as year, 
+							donations.field_amount_value as amount_paid,
+							donations.field_unpaid_amount_value as amount_unpaid,
+							donations.field_verbal_amount_value as verbal_pledge,
+							donations.field_written_amount_value as written_pledge, 
+							donations.field_red_value as red_paid,
+							donations.field_red_unpaid_value as red_unpaid,
+							donations.field_red_verbal_value as red_verbal,
+							donations.field_red_written_value as red_written,
+							donors.field_flag_data as flag_obj,
+							" . (($min == $max && ($max < 2011)) ? "donations.field_single_year_unpaid_value": "donations.field_unpaid_amount_value")  .  " as single_year_unpaid_value,
+							donations.field_donor_nid_nid as donor_id,
+							node.title AS donor_name,
+							(CASE WHEN donors.field_member_value = 0 THEN 5 ELSE donors.field_member_value END) AS member_type,
+							(
+                                select
+                                    sum(case when field_amount_value is null then 0 else field_amount_value end) +
+                                    sum(case when field_unpaid_amount_value is null OR field_year_value > '{$current_date}' then 0 else field_unpaid_amount_value end) +
+                                    sum(case when field_verbal_amount_value is null then 0 else  field_verbal_amount_value end) +
+                                    sum(case when field_written_amount_value is null then 0 else field_written_amount_value end ) 
+                                from
+                                    content_type_donations
+                                where
+                                    field_donor_nid_nid = node.nid
+                                    " . (($min == $max) ? " AND field_year_value = {$min} " : "") . "
+                            ) as total
+						
+						 FROM content_type_donations donations 
+						 INNER JOIN content_type_donors donors ON donors.nid=donations.field_donor_nid_nid
+						 INNER JOIN node node ON node.nid=donors.nid
+						 WHERE donations.field_year_value BETWEEN {$min} AND {$max}
+						 " . ($hide_zero ? " HAVING total > 0 AND total IS NOT NULL " : "" ) . "
+						 ORDER BY member_type asc, total desc");
+						 
+	$yearly_total = array();
+	$donor_total = array();
+	$member_type = array();
+	//Records the items with content...
+	
+	$has_content = array();
+	while ( $donor = db_fetch_object($donations)) {
+		
+		if( !isset($member_type[$donor->member_type])) {
+			$member_type[$donor->member_type] = array();
+		}  
+		
+		if (!isset($member_type[$donor->member_type][$donor->donor_id])) {
+			$donor_item = new stdClass();
+			$donor_item->id = $donor->donor_id;
+			$donor_item->yearly_report = array();
+			$donor_item->name = $donor->donor_name;
+			
+			
+	        
+	        $node = node_load($donor->donor_id);
+	        if(is_array($node->field_flag[0])){
+	            $donor_item->flag_url = $node->field_flag[0]["filepath"]; 
+	        }
+        
+			$member_type[$donor->member_type][$donor->donor_id] = $donor_item;	
+		}
+		
+		$year_report = new stdClass();
+		$year_report->nid = $donor->nid;
+		$year_report->amount = $donor->amount_paid;
+		$year_report->unpaid = $donor->amount_unpaid;
+		$year_report->verbal_pledge = $donor->verbal_pledge;
+		$year_report->written_pledge = $donor->written_pledge;
+		$year_report->single_year_unpaid = $donor->single_year_unpaid_value; 
+
+		$year_report->red_paid = $donor->red_paid;
+		$year_report->red_unpaid = $donor->red_unpaid;
+		$year_report->red_written = $donor->red_written;
+		$year_report->red_verbal = $donor->red_verbal;
+		
+		if(!isset($donor_total[$donor->donor_id])) {
+			$donor_total[$donor->donor_id] = 0;	
+		}
+		
+		/* This area checks if the content is present per section... */
+		if ( !isset($has_content[$donor->year . "-amount"]) && $donor->amount_paid > 0) {
+			$has_content[$donor->year . "-amount"] = true;	
+		}
+		
+		if ( !isset($has_content[$donor->year . "-verbal_pledge"]) && $donor->verbal_pledge > 0) {
+			$has_content[$donor->year . "-verbal_pledge"] = true;	
+		}
+
+		if ( !isset($has_content[$donor->year . "-written_pledge"]) && $donor->written_pledge > 0) {
+			$has_content[$donor->year . "-written_pledge"] = true;	
+		}
+		 
+		if ( !isset($has_content[$donor->year . "-amount_unpaid"]) && $donor->written_pledge > 0) {
+			$has_content[$donor->year . "-amount_unpaid"] = true;	
+		}
+        
+		$donor_total[$donor->donor_id] = $donor->total;
+		//$donor_total[$donor->donor_id] += $donor->amount_paid + $donor->verbal_pledge + $donor->written_pledge + $donor->amount_unpaid;
+		  
+
+		$member_type[$donor->member_type][$donor->donor_id]->yearly_report[$donor->year] = $year_report;
+	}
+	
+	return array($member_type, $donor_total, $has_content);
+}
+
+function _build_donations_area($member_field) {
+	$block = array();
+	$data = array("text" => "Hello");
+	//$limit = isset($_GET['l']) ? t($_GET['l']) : 0;
+	//$page = isset ( $_GET['p'] ) ? t($_GET['p']) : 0;
+
+	#$member_field = isset($_GET['m']) ? t($_GET['m']) : 0;
+	
+	$page *= $limit;
+	$sql = "SELECT 	n.nid AS id, n.title AS name, ctd.field_member_value AS member
+				FROM content_type_donors ctd 
+				JOIN node n ON n.nid=ctd.nid
+				WHERE ctd.field_member_value=%d
+				ORDER BY name ASC
+				"; //LIMIT {$page}, {$limit}
+	
+	$result_donors = db_query($sql, array($member_field));
+	
+	#Collate the donors
+	$donor_id = array();
+	$donor_json = array();
+	while ( $donor = db_fetch_object($result_donors) ) {
+		$donor_id[] = $donor->id;
+		$donor_json[$donor->id] = array("id" => $donor->id, "name" => $donor->name);
+	}
+	
+	
+	#Collect the data
+
+	$sql = "SELECT
+				nid as id, field_year_value as year, field_amount_value as amount, field_donor_nid_nid as donor_id, 
+				field_unpaid_amount_value as unpaid, field_verbal_amount_value as verbal, field_written_amount_value as written, 
+				field_red_value as red, field_red_unpaid_value as red_unpaid, field_red_verbal_value as red_verbal,
+				field_red_written_value as red_written, field_single_year_unpaid_value as single_year_unpaid
+				FROM content_type_donations DONATE 
+				WHERE field_donor_nid_nid IN (" . join(",", $donor_id) . ")	
+				";
+	$result_data = db_query($sql);
+	$data_json = array();
+	
+	$years_target = array();
+	
+	while ($data_item = db_fetch_object($result_data) ) {
+		if ( !isset( $data_json[$data_item->donor_id] ) ) {
+			$data_json[$data_item->donor_id] = array();
+		}
+		
+		if ( !isset( $data_json[$data_item->donor_id][$data_item->year])) {
+			$data_json[$data_item->donor_id][$data_item->year] = array();
+			$years_target[] = $data_item->year;
+		}
+		
+		
+		$data_json[$data_item->donor_id][$data_item->year] = 
+			array(
+				  "year" => $data_item->year,
+			      "nid" => $data_item->id,
+				  "amount" => $data_item->amount,
+				  "unpaid" => $data_item->unpaid,
+				  "verbal" => $data_item->verbal,
+				  "written" => $data_item->written,
+				  "red" => $data_item->red,
+				  "red_unpaid" => $data_item->red_unpaid,
+				  "red_verbal" => $data_item->red_verbal,
+				  "red_written" => $data_item->red_written, 
+				  "single_year_unpaid" => $data_item->single_year_unpaid);
+	}
+	$years_target = array_unique($years_target);
+	$debug_item = array("item " => $path);
+	return theme("_donations_list_theme", 
+		$data_json, 
+		$donor_json,
+		$years_target,
+		$debug_item
+	);	
+}
+
+function _donations_save_donation_changes() {
+	
+	$nid = isset($_GET['nid']) && $_GET['nid'] != "" ? $_GET['nid'] : NULL;
+	$donor_name = isset($_GET['donor_name']) ? $_GET['donor_name'] : NULL;
+	$donor_id = isset($_GET['donor_id']) ? $_GET['donor_id'] : NULL;
+	$amount_key = isset($_GET['amount_key']) ? $_GET['amount_key']: NULL;
+	$original_amount = isset($_GET['original_amount']) ? $_GET['original_amount'] : NULL;
+	$amount = isset($_GET['amount']) ? $_GET['amount'] : NULL;
+	$year = isset($_GET['year']) ? $_GET['year'] : NULL;
+	$red_value = isset($_GET['red_value']) ? $_GET['red_value'] : 0;
+	$loggedinuser = $GLOBALS['user'];
+	
+	$target_table = null;
+	
+	$red_value_column = null;
+	
+	switch($amount_key) {
+		case "amount" : 
+			$target_table = "field_amount_value"; 
+			$red_value_column = "field_red_value";
+			break;
+		case "unpaid" : 
+			$target_table = "field_unpaid_amount_value"; 
+			$red_value_column = "field_red_unpaid_value";
+			break;
+		case "verbal" : 
+			$target_table = "field_verbal_amount_value"; 
+			$red_value_column = "field_red_verbal_value"; 	
+			break;
+		case 
+			"written" : $target_table = "field_written_amount_value"; 
+			$red_value_column = "field_red_written_value";
+			break;
+		case "single_year_unpaid" : 
+			$target_table = "field_single_year_unpaid_value"; break;
+		default: break;
+	}
+	$node = new stdClass();
+		#Save Node
+		$node->nid = $nid;
+		$node->title = $donor_name;
+		$node->type = "donations";
+		$node->uid = $loggedinuser->uid;
+		
+		node_save($node);
+		
+		
+		#Save Content Type
+		//if ($nid == NULL) { //new
+		
+		/*
+		echo "ENTERED HERE";
+			$donation = new stdClass();
+			$donation->nid = $node->nid;
+			$donation->vid = $node->vid;
+			$donation->field_donor_nid_nid = $donor_id;
+			$donation->$target_table = $amount;
+			$donation->field_year_value = $year;
+			drupal_write_record(
+				'content_type_donations', 
+				$donation);
+			
+		} else { */
+			
+			//echo "NEW HERE";
+			$donation = new stdClass();
+			$donation->nid = $node->nid;
+			$donation->vid = $node->vid;
+			$donation->field_donor_nid_nid = $donor_id;
+			$donation->$target_table = $amount;
+			$donation->field_year_value = $year;
+			$donation->$red_value_column = $red_value;
+			drupal_write_record(
+				'content_type_donations', 
+				$donation, 
+				array("nid")
+			);
+	//	}
+		
+		
+		
+		
+	
+	drupal_json(array("uid"=>$loggedinuser->uid, "nid" => $node->nid, 
+						"amount" => $amount, "amount_key" => $amount_key,
+						"donor_id" => $donor_id, "year" => $year, "red_value" => $red_value));
+	
+}
+
+function donations_view_options_form($form_state) {
+	
+	$form = array();
+	
+	list($min, $max) = _get_min_max_year();
+	$member_types = array("unpaid" => "Amount Unpaid","verbal_pledge" => "Verbal Pledge", "written_pledge" => "Written Pledge", "amount" => "Amount paid");
+	
+	$form['submit-button1'] = array('#type'=> 'submit', '#value' => 'Submit', '#weight' => 0, '#suffix' => '<a href="' . $base_url . '/cerf/admin/settings/donations_manager">Go to Donations Manager</a>');							
+	for ($i = $min; $i <= $max; $i++) {
+		$form[$i . '-fieldset'] = 
+			array('#type' => 'fieldset', 
+					'#title' => $i . ' Settings', 
+					'#weight' => $i, 
+					'#collapsible' => TRUE,
+					'#collapsed' => FALSE);
+		
+			$form[$i . '-fieldset']["{$i}-member-types"] = array(
+				'#type' => 'checkboxes',
+				'#options' => $member_types, 
+				'#default_value' => variable_get($i . '-amounts-list-for-donations', array()),
+				'#description' => t('Please check all items you want viewed'),
+				'#suffix' => "<div><label for='{$i}-amount-check-all'><input type='checkbox' name='{$i}-amount-check-all' id='{$i}-amount-check-all' class='donations-checkall'/> Check All</label>
+								   <label for='{$i}-amount-clear-all'><input type='checkbox' name='{$i}-amount-clear-all' id='{$i}-amount-clear-all' class='donations-clearall'/> Clear All</label>
+							</div>"
+			);
+		
+	}
+	
+	$form['submit-button2'] = array('#type'=> 'submit', '#value' => 'Submit', '#weight' => $i+1);
+	
+	return $form;
+}
+
+
+function donations_view_options_form_submit($form, $form_state) {
+	
+	list($min, $max) = _get_min_max_year();
+	for($i = $min; $i <= $max; $i++) {
+		$vals = array();
+		
+		
+		foreach($form_state['values']["{$i}-member-types"] as $key => $value) {
+			
+			if ($value) {
+				error_log("Entered {$key} with {$value}");
+				$vals[] = $key;
+			}
+			
+			
+		}	
+		
+		variable_set($i . '-amounts-list-for-donations', $vals);
+		
+		error_log(print_r(variable_get($i . '-amounts-list-for-donations', array()),true));
+	}
+	
+}
+
+function donations_get_json_data() {
+	
+}
+
+function donations_theme() {
+	$path = drupal_get_path('module', 'donations');
+	return array(
+		'_donations_theme_manage' => array(
+			'template' => 'manage',
+			'arguments' => array('donor_render' => NULL, 'donors' => NULL, 'regional_donors' => NULL, 'private_donors' => NULL),
+			'path' => "$path/theme"
+		),
+		'_donations_list_theme' => array(
+			'template' => 'list',
+			'arguments' => array('data' => NULL, 'donors' => NULL),
+			'path' => "$path/theme"
+		), 
+		
+		'_donations_view_items' => array(
+			'template' => 'view',
+			'arguments' => array('data'=> NULL, 'donor_total' => NULL, 'overall_total_per_column' => NULL, 'min' => NULL, 'max' => NULL), 
+			'path' => "$path/theme"
+		), 
+		'_donations_debug_items' => array(
+			'template' => 'debug',
+			'arguments' => array('debug' => null), 
+			'path' => "$path/theme"
+		),  
+	);
+}

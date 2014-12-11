@@ -1,0 +1,77 @@
+<?php
+
+define('SHIB_SP', 'http://www.unocha.org');
+define('SHIB_LOGOUT', '/secure/Shibboleth.sso/Logout');
+define('SHIB_OUT_SUCCESS', 'https://idp.unocha.org/idp/static/logoutSuccess.html');
+define('SHIB_OUT_ERROR', 'https://idp.unocha.org/idp/static/logoutError.html');
+
+/**
+ * Implements hook_menu_alter().
+ * Block the user page and user/login page
+ */
+function ocha_shib_menu_alter(&$items) {
+  unset($items['user']);
+  unset($items['user/login']);
+}
+
+/**
+ * Implements hook_menu().
+ * Create a new page with the url ocha-login 
+*/
+function ocha_shib_menu() {
+  $items = array();
+  $items['ocha-login'] = array(
+    'title'            => 'OCHA Single Sign On Login',
+    'page callback'    => 'ocha_shib_login',
+    'type'             => MENU_NORMAL_ITEM,
+    'access callback'  => TRUE,
+  );
+  $items['ocha-logout'] = array(
+    'title'            => 'OCHA Logout',
+    'page callback'    => 'ocha_shib_logout',
+    'type'             => MENU_CALLBACK,
+    'access callback'  => TRUE,
+  );
+  return $items;
+}
+
+/**
+ * Login page.
+ */
+function ocha_shib_login() {
+  module_load_include('module', 'shib_auth', 'shib_auth');
+  $block = shib_auth_block('view', 0);
+//  return $block['content'];
+  global $user;
+  if (user_is_logged_in())
+  {
+    drupal_goto('');
+  }
+  else
+  {
+    return $block['content'];
+  }
+
+}
+
+/**
+ * Logout page.
+ */
+function ocha_shib_logout() {
+  global $user;
+  if (user_is_logged_in()) {
+    module_load_include('inc', 'user', 'user.pages');
+
+    // destroy session
+    session_destroy();
+
+    // replace current user with anonymous account
+    $user = drupal_anonymous_user();
+
+    // redirect
+    drupal_goto(SHIB_SP . SHIB_LOGOUT, array('return' => SHIB_OUT_SUCCESS));
+  }
+  else {
+    drupal_goto(SHIB_SP . SHIB_LOGOUT, array('return' => SHIB_OUT_ERROR));
+  }
+}

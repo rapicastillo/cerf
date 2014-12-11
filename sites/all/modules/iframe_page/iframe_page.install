@@ -1,0 +1,101 @@
+<?php
+// $Id: iframe_page.install,v 1.4 2010/09/11 13:06:25 mikl Exp $
+
+/**
+ * Implementation of hook_install().
+ */
+function iframe_page_install() {
+  drupal_install_schema('iframe_page');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function iframe_page_uninstall() {
+  drupal_uninstall_schema('iframe_page');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function iframe_page_schema() {  
+  $schema['iframe_pages'] = array(
+    'fields' => array(
+      'vid' => array(
+        'description' => 'The {node_revisions}.vid for this version of the page.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'nid' => array(
+        'description' => 'The {node}.nid for this page.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'url' => array(
+        'description' => 'The iframe destination URL.',
+        'type' => 'text'
+      ),
+      'height' => array(
+        'description' => 'The height of the iframe.',
+        'type' => 'varchar',
+        'length' => 64,
+      ),
+      'width' => array(
+        'description' => 'The width of the iframe.',
+        'type' => 'varchar',
+        'length' => 64,
+      ),
+      'send_session_id' => array(
+        'description' => 'Sends the user’s session ID along as query parameter to the iframe URL.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'send_get_parameters' => array(
+        'description' => 'Sends the GET parameters along as query parameter to the iframe URL.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('vid', 'nid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Fix wrong node type name.
+ */
+function iframe_page_update_6101(&$sandbox) {
+  $ret = array();
+
+  $ret[] = update_sql("UPDATE {node} SET type = 'iframe_page' WHERE type = 'profile';");
+  node_type_update_nodes('profile', 'iframe_page');
+
+  return $ret;
+}
+ 
+/**
+ * Change width and height to varchar fields to allow for percentage values.
+ */
+function iframe_page_update_6102(&$sandbox) {
+  $ret = array();
+
+  $spec = array(
+    'type' => 'varchar',
+    'length' => 64,
+  );
+
+  db_change_field($ret, 'iframe_pages', 'height', 'height', $spec);
+  db_change_field($ret, 'iframe_pages', 'width', 'width', $spec);
+
+  return $ret;
+}
+

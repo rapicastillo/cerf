@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="<?php print $language->language ?>" dir="<?php print $language->dir ?>">
+<head>
+
+<?php print $head; ?>
+<title><?php print $head_title; ?></title>
+<?php print $styles; ?>
+<?php print $scripts; ?>
+<script type="text/javascript"><?php /* Needed to avoid Flash of Unstyled Content in IE */ ?> </script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("#superfish ul.menu").superfish(); 
+		});
+	</script>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-1433955-20']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+	
+</head>
+<body class="<?php print $body_classes; ?>" style="background: #5F90C1;">
+
+<div id="page">
+
+<div id="header" role="banner">
+  <div id="logo-title">
+    <?php if (!empty($logo)): ?>
+      <a href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>" rel="home" id="logo">
+        <img src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" width="325" height="132"/>
+      </a>
+    <?php endif; ?>
+  </div> <!-- /logo-title -->
+<div id="headest">
+  <?php if (!empty($search_box)): ?>
+    <div id="search-box"><?php print $search_box; ?></div>
+  <?php endif; ?>
+  <?php if (!empty($secondary_links)): ?>
+      <div id="secondary" role="navigation">
+		<a href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>" class="homebutton"><img src="<?php print base_path() . $directory .'/' ?>/images/home_house.png" alt="<?php print t('Home'); ?>" /></a>
+        <?php print theme('links', $secondary_links, array('class' => 'links secondary-links')); ?>
+      </div>
+    <?php endif; ?>
+</div>
+  <?php if (!empty($header)): ?>
+    <div id="header-region">
+      <?php print $header; ?>
+    </div>
+  <?php endif; ?>
+
+  <?php if ($main_menu): ?>
+    <p id="skip-link"><em><a href="#navigation">Skip to Navigation</a></em> &darr;</p>
+  <?php endif; ?>
+</div> <!-- /header -->
+<div id="navigation" class="menu <?php if (!empty($primary_links)) { print "withprimary"; } ?> ">
+    <?php if ($superfish_menu): ?>
+      <div id="superfish" role="navigation">
+
+  		<?php print $superfish_menu; ?>
+
+  	  </div>
+<div style="clear: both;"></div>
+    <?php endif; ?>
+  </div>

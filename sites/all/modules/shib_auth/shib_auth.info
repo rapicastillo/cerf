@@ -1,0 +1,11 @@
+name = Shibboleth authentication
+description = Shibboleth authentication module.
+core = 6.x
+package = Shibboleth
+
+; Information added by drupal.org packaging script on 2011-11-05
+version = "6.x-4.0"
+core = "6.x"
+project = "shib_auth"
+datestamp = "1320512735"
+

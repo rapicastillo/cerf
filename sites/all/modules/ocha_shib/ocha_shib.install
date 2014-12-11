@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function ocha_shib_install() {
+  variable_set('shib_auth_full_handler_url', 'https://spi_installation/Secure/Shibboleth.sso/Login');
+  variable_set('shib_auth_full_logout_url', 'https://idp.unocha.org/idp/Logout');
+  variable_set('shib_auth_username_variable', 'mail');
+  variable_set('shib_auth_email_variable', 'mail');
+  variable_set('shib_auth_link_text', 'OCHA Single Sign On Login');
+  variable_set('shib_auth_login_url', 'front');
+}

@@ -1,0 +1,217 @@
+.reliefwebapi-block-items-filter-list {
+	position: relative;
+}
+.reliefwebapi-block-items-filter-list 
+div.rwapi-item-square {
+	width: 100%;
+	display: inline-block;
+	vertical-align: top;
+	text-align: center;
+	margin-right: 10px;
+	overflow-y: hidden;	
+}
+
+.rwapi-more-link.rwapi-align-right { text-align: right; }
+.rwapi-more-link.rwapi-align-left { text-align: left; }
+
+h4.rwapi-filter-art-tit {
+	font-size: 12px;
+	text-align: left;
+	font-weight: normal;
+	/*overflow-y: hidden;*/
+	/* max-height: 44px; */
+	margin-bottom: 0px;
+}
+
+
+.rwapi-more-link {
+	font-size: 10px;
+	text-align: right;
+}
+
+.rwapi-filter-art-spi {
+	font-size: 10px;
+	line-height: 15px !important;
+	letter-spacing: 0px;
+	display: inline-block;
+	
+	width: inherit;
+}
+.list_type_LIST .rwapi-filter-art-spi {
+	font-size: 12px;
+	overflow-x: auto;
+
+}
+
+.reliefweb-api-pane {
+	/* width: 195px; */
+	display: inline-block;
+	/*margin-right: 30px;*/
+	vertical-align: top;
+	width: 100%;
+
+	margin-bottom: 10px;
+}
+
+.rounded-box-gray-250.reliefweb-api-pane,
+.rounded-box-gray.reliefweb-api-pane {
+	width: auto;
+	display: block;
+}
+
+.rwapi-item-sq-imag {
+	max-width: 100%;
+	max-height: 150px;
+}
+
+/** Pagination **/
+.rwapi-filter-pagination { display: inline-block; }
+.rwapi-filter-pagination .pagination-item {
+	display: inline-block;
+	margin: 2px;
+	padding: 5px;
+	padding-top: 1px;
+}
+
+.rwapi-filter-pagination .pagination-item.current-item {
+	background-color: #DDDDDD;
+}
+
+/*ReliefWeb -- List View*/
+
+.list_type_LIST .rwapi-item-sq-imag {
+	width: 90px;
+	float: left;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	margin-right: 10px;
+}
+.list_type_LIST .rwapi-filter-art-tit {
+	font-size: 12px;
+	text-align: left;
+}
+
+.list_type_LIST .rwapi-filter-art-spi {
+	text-align: left;
+	float: left;
+	margin-bottom: 10px;
+	line-height: 20px !important;
+}
+.list_type_SQUARE.list_count_1 .rwapi-content-item {
+	background-color: transparent;
+	padding: 0 !important;
+	height: auto !important;
+	width: 100%;
+	margin: auto;
+	margin-bottom: 5px;
+}
+.list_type_SQUARE.list_count_1 .rwapi-item-square {
+	width: 181px;
+}
+.list_type_SQUARE.list_count_1 .rwapi-more-link {
+/*	position: static; */
+}
+
+.list_type_SQUARE.list_count_1 .rwapi-item-sq-imag { max-width: 100%; }
+
+.list_type_SQUARE .rwapi-content-item {
+width: 187px;
+padding: 10px 10px;
+background-color: #eeeeee;
+border-radius: 5px;
+float: left;
+margin-right: 17px;
+height: 215px;
+margin-bottom: 25px;
+margin-top: 25px;
+}
+
+.rounded-corner .reliefweb-api-pane, 
+.rounded-corner .list_type_SQUARE.list_count_1 .rwapi-item-square, 
+.rounded-corner .list_type_SQUARE.list_count_1 {
+  width: 100%;
+  overflow-x: hidden;
+}
+.rounded-corner .reliefweb-api-pane { overflow: visible; }
+.rounded-corner .list_type_SQUARE.list_count_1
+{ overflow: visible; }
+.list_type_LIST .rwapi-clear-block {
+	clear: both;
+}
+
+.list_type_SQUARE .rwapi-clear-block {
+	clear: none;
+	display: none;
+}
+
+.post-num-on-single {
+	display: none !important;
+}
+
+.rwapi-more-list-single-sq {
+position: absolute;
+/* left: 8px;
+width: 198px;
+padding-right: 10px;
+*/
+}
+
+.rounded-corner .reliefweb-api-pane { height: inherit; }
+.rounded-corner .reliefweb-api-pane .pane-content {
+  height: 239px;
+}
+
+.rwapi-item-square, .reliefwebapi-block-items-filter-list  { height: inherit; }
+
+.rounded-corner .rwapie-item-square {
+   height: inherit;
+}
+
+.rwapi-more-link {
+  position: absolute; right: 0px; bottom: -18px;
+}
+
+.rounded-cornder .rwapi-more-link {
+  bottom: auto;
+  top: 196px;
+}
+
+.rwapi-contents {
+  padding-right: 0px;
+}
+
+.add_bullets_0 .rwapi-contents {
+  list-style-type: none;
+  padding: 0;
+}
+
+.list_type_LIST.add_bullets_0 .rwapi-content-item:nth-child(even) {
+  background-color: #EEEEEE; 
+}
+
+.title_size_10px .rwapi-filter-art-tit { font-size: 11px; }
+.title_size_12px .rwapi-filter-art-tit { font-size: 12px; }
+.title_size_18px .rwapi-filter-art-tit { font-size: 18px; }
+.title_size_24px .rwapi-filter-art-tit { font-size: 24px; }
+
+.rwapi-filter-date {
+  text-align: left;
+  padding-bottom: 5px;
+}
+
+.is_frontpage_no .rwapi-content-item {
+  padding: 10px;
+}
+
+.rounded-box-gray-250 .is_frontpage_no .rwapi-content-item,
+.rounded-corner .is_frontpage_no .rwapi-content-item {
+  padding: 0px;
+}
+
+.rounded-box-gray-250 .pane-title { margin-top: 10px; }
+
+.is_frontpage_yes .rwapi-item-sq-imag { margin-left: 0px; }
+.rounded-corner .is_frontpage_yes .rwapi-item-sq-imag { margin-left: 0px; }
+
+.loader-container { text-align: center; }
+.loader-image { margin-top: 20px; }

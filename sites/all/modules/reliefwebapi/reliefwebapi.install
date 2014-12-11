@@ -1,0 +1,141 @@
+<?php
+// $Id: lightbox2.install,v 1.1.4.4.2.49 2010/09/22 17:26:19 snpower Exp $
+
+/**
+ * @file
+ * Installation functions for Lightbox2.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+ 
+ /**
+  * Schema
+  */
+ 
+function reliefwebapi_schema() {
+	/**
+	 * For reliefweb table
+	 * delimiter $$
+
+CREATE TABLE `reliefweb` (
+  `rid` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(300) NOT NULL,
+  `primary_country` varchar(500) DEFAULT NULL,
+  `country` varchar(500) DEFAULT NULL,
+  `organisation` varchar(500) DEFAULT NULL,
+  `theme` varchar(500) DEFAULT NULL,
+  `disaster_type` varchar(500) DEFAULT NULL,
+  `vulnerable_groups` varchar(500) DEFAULT NULL,
+  `content_format` varchar(500) DEFAULT NULL,
+  `language` varchar(500) DEFAULT NULL,
+  `published_date` varchar(500) DEFAULT NULL,
+  `active` tinyint(2) DEFAULT '0',
+  `post_num_on_list` int(10) DEFAULT '10',
+  `post_num_on_single` int(10) DEFAULT '1',
+  `show_thumb_on_list` tinyint(2) DEFAULT '0',
+  `show_thumb_on_single` tinyint(2) DEFAULT '0',
+  `show_blurb_on_list` tinyint(2) DEFAULT '0',
+  `show_blurb_on_single` tinyint(2) DEFAULT '0',
+  `get_blurb` tinyint(2) DEFAULT '0',
+  `redirect_to_reliefweb` tinyint(2) DEFAULT '0',
+  `list_view_design` enum('LIST','TILE') DEFAULT 'LIST',
+  PRIMARY KEY (`rid`),
+  UNIQUE KEY `rid` (`rid`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8$$
+
+	 * 
+	 */
+ 	$schema['reliefweb'] = array(
+ 		'description' => t('Reliefweb API Table'),
+ 		'fields' => array(
+ 			'rid' => array(
+ 				'type' => 'serial', 
+ 				'not null' => TRUE
+			), 
+			'name' => array('type' => 'text'), 
+			'primary_country' => array('type' => 'text'),
+			'country' => array('type' => 'text'),
+			'organisation' => array('type' => 'text'), 
+			'theme' => array('type' => 'text'), 
+			'disaster_type' => array('type' => 'text'), 
+			'vulnerable_groups' => array('type' => 'text'), 
+			'content_format' => array('type' => 'text'), 
+			'language' => array('type' => 'text'), 
+			'active' => array('type' =>'int'), 
+			'post_num_on_list' => array('type' =>'int'),  
+			'post_num_on_single' => array('type' =>'int'),  
+			'show_thumb_on_list' => array('type' =>'int'),  
+			'show_thumb_on_single' => array('type' =>'int'),  
+			'show_blurb_on_list' => array('type' =>'int'),  
+			'show_blurb_on_single' => array('type' =>'int'),  
+			'get_blurb' => array('type' =>'int'),  
+			'redirect_to_reliefweb' => array('type' =>'int'),  
+			'list_view_design' => array('type' => 'text')
+		),
+		'primary key' => array('rid')
+	);
+	
+	/**
+	 * delimiter $$
+
+CREATE TABLE `reliefweb_content` (
+  `cid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `reliefweb_id` int(10) unsigned NOT NULL,
+  `title` varchar(200) NOT NULL DEFAULT '',
+  `body` varchar(1000) NOT NULL DEFAULT '',
+  `url` varchar(200) NOT NULL DEFAULT '',
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `image` varchar(200) NOT NULL DEFAULT '',
+  PRIMARY KEY (`cid`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8$$
+
+	 * 
+	 */
+	 
+	 $schema['reliefweb_content'] = array(
+	 	'fields' => array(
+	 		'cid' => array('type' => 'serial', 'not null' => TRUE), 
+	 		'reliefweb_id' => array('type' => 'int'), 
+	 		'title' => array('type' => 'text'), 
+	 		'body' => array('type' => 'text'), 
+	 		'url' => array('type' => 'text'), 
+	 		'created' => array('type' => 'datetime'),
+			'image' => array('type' => 'text'),
+		), 
+		'primary key' => array('cid')
+	 );
+	 
+/**
+ * delimiter $$
+
+CREATE TABLE `reliefweb_content_filter` (
+  `reliefweb_id` int(10) unsigned NOT NULL,
+  `filter_id` int(10) unsigned NOT NULL,
+  UNIQUE KEY `rw_f_id` (`reliefweb_id`,`filter_id`),
+  KEY `rw_id` (`reliefweb_id`),
+  KEY `f_id` (`filter_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8$$
+
+ * 
+ */
+ 	$schema['reliefweb_content_filter'] = array(
+ 		'fields' => array(
+ 			'reliefweb_id' => array('type' => 'int'), 
+ 			'filter_id' => array('type' => 'int'),
+		),
+		'unique keys' => array(
+			'rw_f_id' => array('reliefweb_id', 'filter_id')
+		)
+	);
+	return $schema;
+}
+
+function reliefwebapi_install() {
+  drupal_install_schema('reliefwebapi');
+}
+
+function reliefwebapi_uninstall() {
+  drupal_uninstall_schema('reliefwebapi');
+}

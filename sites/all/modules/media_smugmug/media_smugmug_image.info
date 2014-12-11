@@ -1,0 +1,21 @@
+; $Id: media_smugmug_image.info,v 1.3 2010/04/05 03:42:35 winston Exp $
+
+name = Media: Smugmug Image
+description = Embedded Image Field provider file for Smugmug.com.
+core = 6.x
+dependencies[] = emimage
+package = Media
+
+; Information added by drupal.org packaging script on 2009-06-04
+version = "6.x-1.x-dev"
+core = "6.x"
+project = "media_smugmug"
+datestamp = "1244118101"
+
+
+; Information added by drupal.org packaging script on 2010-04-05
+version = "6.x-1.1"
+core = "6.x"
+project = "media_smugmug"
+datestamp = "1270443306"
+

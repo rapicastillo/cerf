@@ -1,0 +1,399 @@
+$jq(function($) {
+	$("div.rwapi-item-square").each(function(i, item) {
+		$(this).closest(".panel-pane").addClass("reliefweb-api-pane");
+	});
+	
+	//process each square
+	$(document).unbind("reliefwebapi.grab-content-from-rw");
+	$(document).bind("reliefwebapi.grab-content-from-rw", function(event, option) {
+		
+		
+		var _offset = parseInt(option.offset);//= parseInt($target_form.find("input[name=offset]").val());
+		var $target_container = option.target;
+		
+		$target_container.find("div.rwapi-item-square").each(function(i, item) {
+			var $this = $(this);
+	 		var $target_form = $this.find("form.rwapi-filter-form");
+	 		
+	 		
+	 		/**
+	 		 * Initialize
+	 		 * */
+	 		var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+	 		var _queryText = $target_form.find("input[name=query_text]").val(),
+				_primaryCountry = $target_form.find("input[name=primary_country]").val(), 
+	 			_country = $target_form.find("input[name=country]").val(), 
+	 			_theme = $target_form.find("input[name=theme]").val(),
+	 			_vulnerableGroups = $target_form.find("input[name=vulnerable_groups]").val();
+	 			_organisation = $target_form.find("input[name=organisation]").val(), 
+	 			_disasterType = $target_form.find("input[name=disaster_type]").val(), 
+	 			_contentFormat = $target_form.find("input[name=content_format]").val(), 
+	 			_language = $target_form.find("input[name=language]").val(), 
+	 			_publishedDate = $target_form.find("input[name=published_date]").val(),
+	 			
+	 			//Design options
+	 			_summShowThumb = $target_form.find("input[name=summ_show_thumb]").val(),
+	 			_summShowCount =$target_form.find("input[name=summ_show_count]").val(),
+	 			_redirectToRW = parseInt($target_form.find("input[name=redirect-to-reliefweb]").val()),
+	 			_rid = parseInt($target_form.find("input[name=rid]").val());
+	 		var blurb_show = $target_form.find("input[name=summ_show_blurb]").val();
+			var _titleTextHeader = $target_form.find("input[name=title_text_header]").val();
+			var _addBorderPerLine = $target_form.find("input[name=add_border_per_line]").val();
+			var _addBulletsPerLine = $target_form.find("input[name=add_bullets_per_line]").val();
+			var _titleWordLimit = $target_form.find("input[name=title_word_limit]").val();
+			var _blurbWordLimit = $target_form.find("input[name=blurb_word_limit]").val();
+
+			var _addDatePerLine = $target_form.find("input[name=add_date_per_line]").val();
+			var _minHeight = $target_form.find("input[name=min_height]").val();
+			var _itemPadding = $target_form.find("input[name=item_padding]").val();
+
+			_titleWordLimit = _titleWordLimit == 0 ? 100 : _titleWordLimit;
+			_blurbWordLimit = _blurbWordLimit == 0 ? 300 : _blurbWordLimit;
+
+			var showThumb = $target_form.find("input[name=summ_show_thumb]").val();
+	 		var __include = ['title', 'url'];
+	 		var __conditions = [];
+	 		var __query = null;
+
+			if (_queryText && _queryText !== '') {
+				__query = { "fields" : ["title", "body"], "value" : _queryText };
+			}
+	 		if (_primaryCountry && _primaryCountry !== '') { 
+	 			__include.push('primary_country'); 
+	 			__conditions.push({ 
+	 				field : "primary_country", 
+	 				value : _primaryCountry.split("|"),
+					operator : "OR"
+				});
+	 		}
+	 		if (_country && _country !== '') { 
+	 			__include.push('country'); 
+	 			__conditions.push({ field : "country", value: _country.split("|") });
+	 		
+	 			_country = _country.split("|");
+	 		}
+	 		
+	 		if (_theme && _theme !== '') { 
+	 			__include.push('theme'); 
+	 			__conditions.push({ field : "theme", value: _theme.split("|"), operator: "OR" });
+	 			
+	 			_theme = _theme.split("|");
+	 		}
+	 		
+	 		if (_organisation && _organisation !== '') { 
+	 			__include.push('source'); 
+	 			__conditions.push({ field : "source", value: _organisation.split("|"), operator: "OR" }); 
+	 		}
+	 		
+	 		if (_vulnerableGroups && _vulnerableGroups !== '') {
+	 			__include.push('vulnerable_groups'); 
+	 			__conditions.push({ field : "vulnerable_groups", value: _vulnerableGroups.split("|") });
+	 		}
+	 		if (_disasterType && _disasterType !== '') { 
+	 			__include.push('disaster_type'); 
+	 			__conditions.push({ field : "disaster_type", value: _disasterType.split("|") }); 
+	 		}
+	 		
+	 		if (_contentFormat && _contentFormat !== '') { 
+	 			__include.push('format'); 
+	 			__conditions.push({ field : "format", value: _contentFormat.split("|"), operator: "OR" });
+	 		}
+	 		
+	 		if (_language && _language !== '') { 
+	 			__include.push('language'); 
+	 			__conditions.push({ field : "language", value: _language.split("|"), operator: "OR" }); 
+	 		}
+	 		
+				__include.push("date.created");
+	 			__include.push("image.url-small");
+	 			__include.push("file.preview.url-small");
+	 		if (parseInt(blurb_show)) { 
+	 			//This will now be included.
+	 			__include.push('body');
+	 		}
+
+	 		var _targetId = null, _targetUrl = null;
+	 		
+	 		
+	 		var __included_vals = {};
+	 		
+			var _limit = _summShowCount;
+			
+	 		$.ajax({
+	 			url : 'http://api.rwlabs.org/v0/report/list',
+	 			crossDomain: true, 
+	 			dataType: "json",
+	 			async: true,
+	 			type: "GET",
+	 			data : /* _tempQuery */
+	 			__query ? 
+	 			{
+	 				offset: _offset * _limit,
+	 				limit: _summShowCount, 
+	 				fields: {
+	 					include: __include 
+	 				},
+		 			filter: {
+		 				conditions: __conditions
+		 			},
+					query: __query,
+					"sort[0]": "date.original:desc",
+	 			}
+				: {
+                                        offset: _offset * _limit,
+                                        limit: _summShowCount,
+                                        fields: {
+                                                include: __include
+                                        },
+                                        filter: {
+                                                conditions: __conditions
+                                        },
+					"sort[0]": "date.created:desc",
+                                }, 
+	 			beforeSend: function() {
+	 				$this.find(".rwapi-contents").html("");
+	 				$this.find(".rwapi-filter-pagination").html("");
+	 			},
+	 			success: function(d) {
+
+	 				var $content_area = $this.find(".rwapi-contents");
+	 				var $pagination_area = $this.find(".rwapi-filter-pagination");
+	 				
+	 				//_targetId= d.data.list[0].id;
+	 				d['filter_id'] = _rid;
+
+					if (d.data.list.length == 0) {
+						$content_area.append($("<em />").text("ReliefWeb API did not return any values. Please check the filters or contact your administrator."));
+						 $this.closest(".reliefwebapi-block-items-filter-list").find(".reliefwebapi-submit-form").hide();
+					}
+	 				$(d.data.list).each(function(i, item) {
+	 					var $content_item = $("<li />").addClass("rwapi-content-item");
+	// 					$content_area.append($("<h4 />").addClass("rwapi-filter-art-tit").html("<a href='" + item.fields.url + "' target='_blank'>" + item.fields.title + "</a>"));
+	 	 				if (parseInt(showThumb)) {
+	 	 					var _previewFilename = item.fields.image ? item.fields.image['url-small'] : (item.fields.file && item.fields.file.length ? item.fields.file[0].preview['url-small'] : "/images/ocha.jpg");
+	 	 					if (_previewFilename === undefined) {
+	 	 						_previewFilename = "/images/ocha.jpg";
+	 	 					} 
+	 	 					
+	 	 					$content_item.append($("<a />").attr("href", item.fields.url).attr("target", "_blank").append($("<img />").addClass("rwapi-item-sq-imag").attr("src", _previewFilename)));
+	 	 		 		}
+	
+						if (parseInt(_addDatePerLine)) {
+							var date_time = new Date(item.fields.date.created); 
+							$content_item.append($("<div />").addClass("rwapi-filter-date").html(MONTHS[date_time.getMonth()] + " " + date_time.getDate() + " " +  date_time.getFullYear()));
+						}
+
+						var _actualTitleText = item.fields.title;
+						_actualTitleText = _actualTitleText.length > _titleWordLimit ? _actualTitleText.substring(0, _titleWordLimit) : _actualTitleText;
+						_actualTitleText = _actualTitleText.length < _titleWordLimit ? _actualTitleText : _actualTitleText.substring(0, _actualTitleText.lastIndexOf(" ")).concat("&hellip;");
+						$content_item.append($("<h4 />").addClass("rwapi-filter-art-tit").html(
+											"<strong>" + _titleTextHeader + "" + (_titleTextHeader != "" ? ": ":"" ) + "</strong>" 
+											+ "<a href='" + item.fields.url + "' target='_blank'>" + _actualTitleText + "</a>")
+						);
+	
+	 	 				if (parseInt(blurb_show)) {
+	 	 					var _actualBlurb = item.fields.body && $.trim(item.fields.body) !== "" ? (item.fields.body).replace(/<.*?>/g, '') : "";
+                                                        _actualBlurb = _actualBlurb.replace(/\n/g,'<br/>'); 
+
+							_actualBlurb = _actualBlurb.substring(0, _blurbWordLimit);
+							_actualBlurb = _actualBlurb.substring(0, _actualBlurb.lastIndexOf(" "));
+	 	 					$content_item.append($("<span />").addClass("rwapi-filter-art-spi").html(_actualBlurb + "&hellip;"));
+	 	 				}
+	 	 				
+
+						$content_item.append($("<div/>").addClass("rwapi-clear-block"));
+	 	 				$content_area.append($content_item);
+	 				});
+	 				$content_area.append($("<div/>").addClass("rwapi-clear-block"));
+	 				//$content_area.append($("<div/>").css("clear", "both"));
+	 				if ($this.parent().hasClass("list_type_LIST") & parseInt(_summShowThumb)) {
+	 					$content_area.find(".rwapi-filter-art-spi").width($content_area.width() - 90);
+	 				}
+	 				
+					//For the regularization of the height of the content area	
+					if ($this.closest(".rounded-corner").length) {
+						var $title = $this.closest(".rounded-corner").find(".pane-title");
+						var $content_block = $this.closest(".reliefwebapi-block-items-filter-list");
+						$content_block.height($this.closest(".rounded-corner").height() - $title.height() - 47);
+					}
+	 				/* Redirect to RW by getting the matched ID for the RW native filtering*/
+	 				$content_area.after($("<div/>").addClass("rwapi-clear-block").css("clear" , "both"));
+	 				//Check if pagination is present
+	 				if ($pagination_area.length > 0) {
+	 					var _startingPage = _offset > 4 ? _offset - 4 : 0;
+	 					var _total = d.data.total;
+	 					if (_offset > 0) {
+	 						$pagination_area.append(	
+	 							$("<div />").addClass("pagination-item ").append(
+	 								$("<a />").addClass("reliefwebapi-submit-form").attr("href", "javascript: void(0);").text("First").attr("offset", 0)
+	 							)
+	 						);
+	 	 		
+	 						$pagination_area.append(
+	 							$("<div />").addClass("pagination-item ").append(
+	 								$("<a />").addClass("reliefwebapi-submit-form").attr("href", "javascript: void(0);").text("Previous").attr("offset", _offset-1)
+	 							)
+	 						);
+	 					}
+	 					
+	 					while (_startingPage * _limit < _total && _startingPage - _offset < 5) {
+	 						$pagination_area.append(
+	 							$("<div />").addClass("pagination-item  " + (_startingPage == _offset ? "current-item" : "")).append(
+	 								$("<a />").addClass("reliefwebapi-submit-form").attr("href", "javascript: void(0);").attr("offset", _startingPage++).text(_startingPage)
+	 							)
+	 						);
+	 					}
+	 					if (_offset * _limit < _total) {
+	 						$pagination_area.append(
+	 								$("<div />").addClass("pagination-item ").append(
+	 									$("<a />").addClass("reliefwebapi-submit-form").attr("href", "javascript: void(0);").text("Next").attr("offset", _offset+1)
+	 								)
+	 							);
+	 							
+	 						$pagination_area.append(
+	 								$("<div />").addClass("pagination-item  ").append(
+	 									$("<a />").addClass("reliefwebapi-submit-form").attr("href", "javascript: void(0);").text("Last").attr("offset", Math.floor(_total/_limit))
+	 								)
+	 							);
+	 					}
+	 				}
+	 				
+	 				//Save content received for backup...
+					var dcopy = d;
+					delete dcopy.data['total']; delete dcopy.data['time']; delete dcopy.data['type'];					
+					for(var cnt = dcopy.data.list.length-1; cnt >=0; cnt--) {
+						delete dcopy.data.list[cnt]['fields']['primary_country'];
+						delete dcopy.data.list[cnt]['fields']['source'];
+						delete dcopy.data.list[cnt]['fields']['format'];
+						delete dcopy.data.list[cnt]['fields']['date'];
+						delete dcopy.data.list[cnt]['fields']['score'];
+					} 
+
+	 				$.ajax({
+	 					type: "POST", 
+	 					url : $target_form.find("input[name=base_url]").val() + "reliefweb/save_content/", 
+	 					data: {
+	 						message: dcopy, 
+	 					},
+					
+	 					success: function(data) {
+	 					}
+	 				});
+	 			}, 
+	 			
+	 			error: function(a, b, c) {
+					
+	 				var $content_area = $this.find(".rwapi-contents");
+	 				//If some error occured get information from db and hide the more button
+	 				$.ajax({
+	 					url: $target_form.find("input[name=base_url]").val() + "reliefweb/list_json", 
+	 					data: {
+	 						fid: _rid,
+	 						limit: $target_form.find("input[name=summ_show_count]").val()
+	 					}, 
+	 					dataType: "json",
+	 					success: function(data) {
+	 						
+	 						$(data.items).each(function(i, item) {
+                                                var $content_item = $("<li />").addClass("rwapi-content-item");
+        //                                      $content_area.append($("<h4 />").addClass("rwapi-filter-art-tit").html("<a href='" + item.fields.url + "' target='_blank'>" + item.fields.title + "</a>"));
+                                                if (parseInt(showThumb)) {
+                                                        var _previewFilename = item.image;
+                                                        $content_item.append($("<a />")
+									.attr("href", item.url)
+									.attr("target", "_blank")
+									.append($("<img />")
+									.addClass("rwapi-item-sq-imag").attr("src", _previewFilename)));
+                                                }
+/*
+                                                if (parseInt(_addDatePerLine)) {
+                                                        var date_time = new Date(item.fields.date.created);
+                                                        $content_item.append($("<div />").addClass("rwapi-filter-date").html(MONTHS[date_time.getMonth()] + " " + date_time.getDate() + " " +  date_time.getFullYear()));
+                                                }
+*/
+                                                var _actualTitleText = item.title;
+                                                _actualTitleText = _actualTitleText.length > _titleWordLimit ? _actualTitleText.substring(0, _titleWordLimit) : _actualTitleText;
+                                                _actualTitleText = _actualTitleText.length < _titleWordLimit ? _actualTitleText : _actualTitleText.substring(0, _actualTitleText.lastIndexOf(" ")).concat("&hellip;");
+                                                $content_item.append($("<h4 />").addClass("rwapi-filter-art-tit").html(
+                                                                                        "<strong>" + _titleTextHeader + "" + (_titleTextHeader != "" ? ": ":"" ) + "</strong>"
+                                                                                        + "<a href='" + item.url + "' target='_blank'>" + _actualTitleText + "</a>")
+                                                );
+
+                                                if (parseInt(blurb_show)) {
+                                                        var _actualBlurb = item.body && $.trim(item.body) !== "" ? (item.body).replace(/<.*?>/g, '') : "";
+                                                        _actualBlurb = _actualBlurb.replace(/\n/g,'<br/>');
+
+                                                        _actualBlurb = _actualBlurb.substring(0, _blurbWordLimit);
+                                                        _actualBlurb = _actualBlurb.substring(0, _actualBlurb.lastIndexOf(" "));
+                                                        $content_item.append($("<span />").addClass("rwapi-filter-art-spi").html(_actualBlurb + "&hellip;"));
+                                                }
+
+
+                                                $content_item.append($("<div/>").addClass("rwapi-clear-block"));
+                                                $content_area.append($content_item);
+
+/*
+								 if (parseInt(_summShowThumb)) {
+	                                                                $content_area.append($("<img />").addClass("rwapi-item-sq-imag").attr("src", ""));
+	                                                        }
+	
+	 		 					$content_area.append($("<h4 />").addClass("rwapi-filter-art-tit").html("<a href='" + item.url + "' target='_blank'>" + item.title + "</a>"));
+	 		 	 				
+	 		 	 				if (parseInt(blurb_show)) {
+	 		 	 					var _actualBlurb = (item.body).replace(/\\n/g,'<br/>'); 
+	 		 	 					$content_area.append($("<span />").addClass("rwapi-filter-art-spi").html(_actualBlurb));
+	 		 	 				}
+*/
+	 		 				});
+
+	                                        if ($this.closest(".rounded-corner").length) {
+                                                var $title = $this.closest(".rounded-corner").find(".pane-title");
+                                                var $content_block = $this.closest(".reliefwebapi-block-items-filter-list");
+                                                $content_block.height($this.closest(".rounded-corner").height() - $title.height() - 47);
+	                                        }
+
+	 						$this.find(".reliefwebapi-submit-form").hide();
+	 					}, error: function(a,b,c) {
+	 					}
+	 				});
+	 			}
+	 		});
+	 			
+		});
+	});
+	
+	$(".reliefwebapi-submit-form").die("click");
+	$(".reliefwebapi-submit-form").live("click", function() {
+		var _offset = $(this).attr("offset");
+		$(document).trigger("reliefwebapi.grab-content-from-rw", { offset : _offset, target : $(this).closest(".reliefweb-api-pane") });
+	});
+	function test(data) {
+	}
+	
+	function getBlurb(targetURL, targetContainer) {
+		targetContainer.load(targetURL);
+		
+		/* $.ajax({
+			url : _targetUrl,
+			crossDomain : true,
+			dataType: "html",
+			success: function(resp) {
+				$this.find(".rwapi-filter-art-spi").html($(resp).find(".field.body"));
+			}, 
+			error: function(a,b,c) {
+			}
+		}); */
+	}
+	/*
+	$(".reliefwebapi-submit-form").bind("click", function(event) {
+		var $parent = $(this).closest(".rwapi-item-square");
+		var $targetForm = $parent.find("form.rwapi-filter-form");
+		
+		event.preventDefault();
+		
+		$targetForm.trigger("submit");
+	}); */
+	$(".reliefweb-api-pane").each(function(i, item) {
+		$(document).trigger("reliefwebapi.grab-content-from-rw", { offset : 0, target: $(this) });
+	});
+});

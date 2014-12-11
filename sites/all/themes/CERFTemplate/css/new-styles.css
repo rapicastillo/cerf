@@ -1,0 +1,710 @@
+body 
+{
+  color: #333333;
+}
+
+body .general-pages .pane-content
+{
+ line-height: 1.5 !important;
+}
+
+body .general-pages table p
+{
+  margin: 0;
+  padding: 0;
+}
+
+li
+{
+  url(../../misc/menu-leaf.png)
+}
+.cerf-front-page
+{
+ font-size: 11px;
+}
+
+.cerf-new-design
+{
+}
+
+.cerf-new-design .cerf-new-design-column
+{
+}
+
+.cerf-new-design .cerf-new-design-row
+{
+}
+
+.cerf-new-design .cerf-new-design-region
+{
+}
+
+.cerf-new-design .cerf-new-design-left-column
+{
+}
+
+.cerf-new-front-page .cerf-new-design-right-column .pane-title
+{
+background-color: #efaa1f;
+color: white;
+padding: 4px;
+font-size: 15px;
+width: 270px;
+}
+.cerf-new-front-page .fp-left-mainbar-content .pane-latesttopstories-countrypage ul li
+{
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+.cerf-new-front-page .fp-left-mainbar-content .pane-title
+{
+color: white;
+font-size: 11px;
+text-transform: uppercase;
+display: inline-block;
+padding: 3px;
+font-weight: normal;
+margin-bottom: 2px;
+background-color: #717173;
+}
+
+.cerf-new-front-page .fp-left-mainbar-content .pane-content
+{
+  line-height: 18px;
+  font-size: 12px;
+}
+
+.cerf-new-front-page .fp-left-mainbar-content .pane-contentul li
+{
+  line-height: 14px;
+  font-size: 12px;
+}
+
+.blank-view-hide-it .pane-content { display: none; }
+
+.cerf-new-front-page .fp-left-mainbar-content .pane-title a { color: white; }
+
+.cerf-new-front-page .fp-left-mainbar-content .new-cerf-rwapi ul
+{
+  padding-left: 16px;
+
+}
+
+
+.cerf-new-front-page .cerf-new-design-left-column .cerf-new-design-left-title
+.pane-content
+{
+  background-color: #dddce0;
+  padding: 4px;
+  font-weight: bold;
+  color: #464548 !important;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  font-size: 15px;
+  text-transform: uppercase;
+}
+.cerf-new-front-page .cerf-new-design-left-column .cerf-new-design-left-title
+.pane-content a
+{
+  color: #464548 !important;
+}
+
+.cerf-new-front-page .cerf-new-design-left-column .cerf-new-design-left-title
+.pane-content p
+{
+	padding: 0;
+	margin: 0;
+}
+
+.cerf-new-front-page .cerf-new-design-left-column .cerf-new-design-left-title
+.pane-title
+{
+  display: none;
+}
+
+.cerf-new-front-page .cerf-new-design-right-column .pane-slideshow-jack2 {
+padding: 4px;
+padding-right:2px;
+background-image: url(../images/bg_png_right.png)
+}
+
+
+.cerf-new-front-page .cerf-new-design-right-column .ourdonorsboxcontent-ticker
+{
+        font-size: 10px !important;
+        vertical-align: middle;
+}
+
+.cerf-new-front-page .cerf-new-design-right-column .ourdonorsboxcontent-ticker .donors-title-mini-for-flag
+{
+        vertical-align: top;
+        display: inline-block
+}
+
+.cerf-new-front-page .cerf-new-design-right-column .ourdonorsboxcontent-ticker .view-header p
+{
+  margin: 0;
+  padding: 4px;
+  font-style: italic;
+}
+/*multimedia area */
+.fp-mult-image-area
+.fp-mult-image-area-image
+{
+width: 295px;
+height: 165px;
+overflow: hidden;
+position: relative;
+
+}
+
+
+.fp-mult-image-area
+.fp-mult-image-area-image
+img
+{
+  width: 295px;
+  height: 226px;
+
+  margin-top: -10%;
+}
+.fp-mult-image-area
+.fp-mult-image-title
+{
+text-align: center;
+margin-top: 5px;
+}
+.fp-mult-image-area-image
+.fp-mult-image-type
+{
+  position: absolute; 
+  bottom: 0;
+  left: 0;
+  padding: 4px;
+display: inline-block;
+color: #464548;
+font-weight: bold;
+position: absolute;
+background-color: #dedede;
+font-size: 10px;
+padding: 2px;
+}
+
+.cerf-new-front-page .rwapi-contents
+{
+  margin-top: -10px;
+}
+
+
+/* crises in focus */
+.clear-both {
+  clear: both;
+}
+
+.country-page-brief-item .cpb-image, .country-page-brief-item .cpb-text {
+display: inline-block;
+float: left;
+}
+.country-page-brief-item .cpb-image img {
+height: 75px;
+width: 75px;
+}
+
+.cerf-new-front-page #fp-crisis-list .pane-content .views-row
+{
+  margin-top: 5px;
+  padding-bottom: 5px;
+}
+
+
+.country-page-brief-item .cpb-text {
+width: 205px;
+margin-left: 4px;
+}
+
+.country-page-brief-item .cpb-text h4 {
+margin: 0px;
+}
+
+.country-page-brief-item .cpb-text p {
+font-size: 11px;
+line-height: 1.5;
+color: #333333;
+margin-top: 2px;
+}
+
+
+.country-page-brief-item .cpb-text p {
+font-size: 11px;
+line-height: 1.5;
+color: #333333;
+margin-top: 2px;
+}
+
+.cerf-new-front-page .rwapi-content-item
+{
+  padding: 0;
+}
+/* Donors Image area */
+
+.cerf-new-front-page .cerf-new-design-right-column .donors-image-col
+{
+  width: 180px;
+}
+
+.cerf-new-front-page .cerf-new-design-right-column .donors-image-amount
+{
+  width: 90px;
+  text-align: right;
+}
+
+/* Front page right mid */
+.cerf-new-front-page .cerf-new-design-right-column .cerf-new-design-region-cerf-new-front-page-mid_right_sidebar,
+.cerf-new-front-page .cerf-new-design-right-column .cerf-new-design-region-cerf-new-front-page-bottom_right_sidebar
+{
+  background-image: url(../images/bg_png_right.png);
+  padding: 4px;
+  padding-right:2px;
+}
+
+.cerf-new-front-page .cerf-new-design-right-column .cerf-new-design-region-cerf-new-front-page-bottom_right_sidebar .pane-content
+{
+  font-size: 11px !important;
+  line-height: 1.25;
+}
+
+
+.cerf-new-front-page .cerf-new-design-right-column .cerf-new-design-region-cerf-new-front-page-bottom_right_sidebar .pane-content table
+{
+  width: 280px;
+}
+
+.cerf-new-front-page .cerf-new-design-right-column .cerf-new-design-region-cerf-new-front-page-bottom_right_sidebar .pane-content table tr 
+{
+  height: 85px;
+}
+
+/* CERF STORY */
+.new-cerf-story
+{
+  position: relative;
+}
+
+
+.new-cerf-story .new-cerf-sidebar
+{
+ margin-top: -13px;
+}
+
+.new-cerf-design-multimedia-inside .new-cerf-design-multimedia-right .content-page-right-sidebar-area,
+.general-pages .right-column-area
+{
+ margin-top: 27px;
+}
+
+.new-cerf-story .new-cerf-sidebar .pane-title,
+.new-cerf-design-multimedia-inside .new-cerf-design-multimedia-right .pane-title,
+.new-cerf-country-allocations .right-border-side h2.pane-title,
+.new-cerf-specific-country-allocations .right-border-side h2.pane-title,
+.new-cerf-donations-area .border-right-sidebar h2.pane-title,
+.new-cerf-donations-area .pane-primary-links .pane-title,
+.new-cerf-donations-area .pane-navigation .pane-title,
+.general-pages .right-column-area h2.pane-title
+{
+background-color: #b1b1b1;
+color: white;
+font-size: 12px;
+padding: 5px;
+text-transform: uppercase !important;
+font-weight: bold;
+}
+
+
+#new-cerf-story-title .pane-content, 
+.new-cerf-design-multimedia-middle #new-cerf-page-title h2.pane-title,
+.new-cerf-country-allocations .country-allocations-title .pane-content,
+.new-cerf-specific-country-allocations .country-allocations-title .pane-content,
+.new-cerf-story-general .super-title-area .pane-title,
+.new-cerf-donations-area .super-title-area .pane-title,
+.general-pages .super-title-area h2
+{
+  font-weight: normal;
+text-transform: none;
+width: auto;
+padding-bottom: 4px;
+border-width: 0 0 2px 0;
+border-style: solid;
+margin-bottom: 4px;
+border-color: #b4b4b4;
+font-size: 20px;
+color: #006cb6;
+}
+.new-cerf-country-allocations .allocation-region-class .panel-pane,
+.new-cerf-specific-country-allocations .right-border-side .panel-pane
+{
+  background-color: white;
+}
+.new-cerf-country-allocations .right-border-side,
+.new-cerf-specific-country-allocations .right-border-side,
+.new-cerf-donations-area .border-right-sidebar
+{
+  margin-top: 22px;
+}
+
+.new-cerf-donations-area .border-right-sidebar
+{
+  margin-top: 27px;
+  margin-left: 4px;
+}
+
+.new-cerf-donations-area .pane-navigation
+{
+  height: 33px;
+}
+
+.new-cerf-donations-area .pane-primary-links .pane-title,
+.new-cerf-donations-area .pane-navigation .pane-title
+{
+ display: inline-block;
+ float: left;
+}
+
+.new-cerf-donations-area .pane-primary-links .pane-content,
+.new-cerf-donations-area .pane-navigation .pane-content
+{
+ display: inline-block;
+ float: left;
+ margin-left: 10px;
+ margin-top: 3px;
+}
+
+.new-cerf-donations-area .pane-primary-links .pane-content li a,
+.new-cerf-donations-area .pane-navigation .pane-content li a
+{
+ background: transparent !important;
+ font-size: 12px !important; 
+ color: #006cb6 !important;
+}
+
+.new-cerf-donations-area .border-right-sidebar table,
+.new-cerf-donations-area .border-right-sidebar table td
+{
+ border-width: 0;
+}
+
+.new-cerf-donations-area .pane-navigation .pane-content li
+{
+  list-style: none;
+}
+.new-cerf-donations-area .pane-primary-links .pane-content li a.active,
+.new-cerf-donations-area .pane-navigation .pane-content li a.active {
+background: none;
+font-weight: bold;
+border-style: solid;
+border-width: 0 0 2px 0;
+}
+
+
+.new-cerf-story .new-cerf-content-area .field-field-image,
+.new-cerf-story .new-cerf-content-area .field-field-featured-image
+{
+width: 600px;
+padding: 0;
+margin: 0;
+overflow: hidden;
+height: 250px;
+border-radius: 0;
+
+border: 0;
+position: relative;
+
+margin-bottom: 12px;
+}
+
+/* Publications */
+.new-cerf-design-multimedia .pane-annualreports h2.pane-title,
+.new-cerf-design-multimedia .reliefweb-api-pane h2.pane-title
+{
+  text-transform: uppercase;
+background-color: #efaa1f;
+color: white;
+padding: 2px 4px;
+display: inline-block;
+margin-top: 10px;
+font-size: 13px;
+margin-bottom: 10px;
+}
+
+.new-cerf-design-multimedia .pane-annualreports td
+{
+  vertical-align: top;
+}
+.new-cerf-design-multimedia .pane-annualreports .pane-content
+{
+ margin-bottom: 40px;
+}
+
+
+
+
+
+.new-cerf-story .new-cerf-content-area .field-field-image img.imagecache-front_page,
+.new-cerf-story .new-cerf-content-area .field-field-featured-image img {
+height: auto;
+width: 600px;
+margin-top: -10%;
+}
+.new-cerf-story .new-cerf-content-area .field-field-featured-image img
+{
+  margin-top: 0;
+}
+.new-cerf-story .new-cerf-content-area .field-field-image .image-caption,
+.new-cerf-story .new-cerf-content-area .field-field-featured-image .image-caption
+{
+position: absolute;
+bottom: 0px;
+background: rgba(255,255,255,0.7);
+margin: 5px;
+}
+
+.new-cerf-story .new-cerf-content-area .field-field-summary {display: none; }
+
+.new-cerf-story .new-cerf-content-area
+{
+  line-height: 1.5;
+}
+
+.new-cerf-story .print-link
+{
+display: block;
+text-align: right;
+padding-bottom: 0.5em;
+position: absolute;
+top: 5px;
+left: 880px;
+}
+
+.new-cerf-story .new-cerf-content-area .pane-content .content
+{
+ /* margin-top: -20px; */
+ margin-top: -10px;
+}
+
+
+/* publications */
+.new-cerf-design-multimedia.new-cerf-publications .rwapi-content-item a
+{
+    height: 160px;
+    display: inline-block;
+}
+.new-cerf-design-multimedia.new-cerf-publications .rwapi-item-square, 
+.new-cerf-design-multimedia.new-cerf-publications .reliefwebapi-block-items-filter-list
+{
+  width: 680px;
+}
+
+.new-cerf-design-multimedia .list_type_SQUARE .rwapi-content-item
+{
+width: 164px;
+padding: 0;
+background-color: white;
+border-radius: 0;
+float: left;
+margin-right: 2px;
+margin-bottom: 25px;
+margin-top: 0px;
+}
+
+/* Country allocations */
+.new-cerf-country-allocations .right-border-side #alloc-per-country-years ul,
+.new-cerf-country-allocations .right-border-side ul
+{
+}
+
+.new-cerf-country-allocations .right-border-side h3,
+.new-cerf-specific-country-allocations .right-border-side h3
+{
+  font-size: 10pt;
+  margin-bottom: 2px;
+}
+
+/* Donate */
+#how-to-donate-table, #how-to-donate-table tbody, #how-to-donate-table td
+{
+  border-color: #5F90C1;
+border-width: 1px;
+border-style: solid;
+vertical-align: top;
+}
+
+#how-to-donate-table td p
+{
+  margin: 0;
+}
+
+
+
+
+/* OVERRIDING */
+
+#header 
+{
+background: transparent url(../images/CERFHomeBanner_NoLogo_new.jpg) no-repeat 0 0;
+height: 115px;
+border-bottom: 3px solid #efaa1f;
+z-index: 2;
+position: relative;
+}
+
+#logo-title {
+float: left;
+width: 312px;
+display: inline;
+height: auto;
+margin: 20px 0 0 17px;
+}
+
+#logo-title #logo img, #logo-title #logo
+{
+ width: inherit;
+ height: inherit;
+}
+
+#search-box .txtSearch {
+width: 185px;
+margin: 0 0 0 4px;
+height: 17px;
+background-color: rgba(255,255,255,0.6);
+font-size: 11px;
+padding-left: 1px;
+border: 1px solid rgba(244,244,244,0.4);
+}
+
+#search-box .form-submit
+{
+  display: none;
+}
+#search-box {
+float: right;
+width: 200px;
+display: inline;
+margin-top: 24px;
+margin-right: 11px;
+}
+
+div#slogan-item {
+position: absolute;
+top: 75px;
+right: 39px;
+font-family: Verdana, serif;
+
+color: rgba(239,170,31,1);
+font-size: 14px;
+letter-spacing: 1px;
+}
+
+/*For Table in Contact us area */
+
+.contact-us-name-list
+{
+ border-radius: 4px;
+ width: 100%;
+ background-color: #fafafa;
+ border: 1px solid #e4e4e4;
+ padding: 15px;
+}
+
+.contact-us-name-list table {
+ width: 100% !important;
+ border-width: 1px 0 0 0;
+ border-color: #dfdfdf;
+}
+
+
+.contact-us-name-list table td {
+ width: 33%;
+ border: none;
+ font-size: 12px;
+ vertical-align: top;
+}
+
+.contact-us-name-list p
+{
+  margin-bottom: 0;
+}
+
+ul.menu,
+ul.menu-name-primary-links
+{
+ padding-left: 32px;
+}
+
+ul.menu li.leaf,
+li.leaf
+{
+ list-style-image: none;
+ list-style-type: disc;
+ padding: 0 0;
+}
+
+#footer-wrapper
+{
+ background-image: none;
+}
+
+li a.active
+{
+ color: #006cb6;
+}
+
+.pane-content img
+{
+/* margin: 5px; */
+}
+
+.new-cerf-rwapi .rwapi-more-link
+{
+ text-align: left;
+font-size: 12px;
+ left: 0;
+ right: auto; 
+}
+
+#footer-wrapper
+{
+  padding-bottom: 20px;
+}
+
+/**/
+li.collapsed
+{
+  list-style-image: none;
+}
+
+#logo-title #logo img { width: 312px; }
+
+.page-front-page
+.pane-content #node-date-created
+{
+  display: none;
+}
+.page-node.node-type-news.not-front
+.pane-content #node-date-created
+{
+background-color: #b4b4b4;
+margin-top: -11px;
+text-align: right;
+padding: 1px;
+padding-right: 6px;
+color: white;
+font-size: 10px;
+}
+
+.page-node.node-type-news
+.pane-content .content
+p:first-child
+{
+  height: 0 !important;
+  margin: 2px;
+}

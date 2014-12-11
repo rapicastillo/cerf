@@ -1,0 +1,24 @@
+<?php
+// $Id$
+
+/**
+ * Implementation of hook_install().
+ * Display a welcome message
+ */
+function ctoolscustomplugins_install() {
+  drupal_set_message(t('Chaos tools custom plugins is now installed. Please configure the module at @settings.',
+    array( '@settings' => url('admin/settings/ctoolscustomplugins') )
+  ));
+}
+
+/**
+ * Implementation of hook_uninstall()
+ */
+function ctoolscustomplugins_uninstall() {
+  // remove all variables we created
+  $variables = db_query("SELECT name FROM {variable} WHERE name LIKE 'ctoolscustomplugins%%'");
+  while ($variable = db_fetch_object($variables)) {
+    variable_del($variable->name);
+  }
+  update_sql("DELETE FROM {system} WHERE name like '%ctoolscustomplugins'");
+}

@@ -1,0 +1,27 @@
+6.x-1.0-alpha1:
+- New: First version for Drupal 6
+
+6.x-1.0-alpha2:
+- New: Options to set Tinybox Width and Height to auto or fixed value
+- New: Options to set custom CSS path
+
+6.x-1.0-alpha3:
+- New: Check if TinyBox library exists
+- New: Options to enter TinyBox library path
+
+6.x-1.0-alpha4:
+- New: Support Content Type and Views as Splash source
+
+6.x-1.0-alpha5:
+- New: Support Splash Autohide
+- New: Support Splash Session Timeout
+
+6.x-1.0-alpha6:
+- Fix: Splash Session Timeout logic
+
+6.x-1.0-beta1:
+- New: First beta for Drupal 6
+
+6.x-1.0-beta2:
+- Fix: Branch 6.x-1.0 to 6.x-1.x
+- Fix: Fix any issue founded by Coder 

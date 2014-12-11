@@ -1,0 +1,5 @@
+name = OCHA Shibboleth
+core = 6.x
+
+dependencies[] = shib_auth
+package = OCHA

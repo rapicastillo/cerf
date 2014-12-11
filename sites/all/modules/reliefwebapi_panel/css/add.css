@@ -1,0 +1,66 @@
+#rwapi-manage-wrapper td {
+	border: solid #d3e7f4;
+	border-width: 1px 0;
+}
+
+#rwapi-manage-wrapper span.rwapi-required {
+	color: red;
+}
+
+#rwapi-manage-wrapper label {	cursor: pointer; display: inline-block; margin-right: 5px;}
+#rwapi-manage-wrapper ul li {
+	list-style-type: none;
+	display: inline-block;
+	padding: 4px 10px;
+}
+
+#rwapi-manage-wrapper input[type=text], 
+#rwapi-manage-wrapper input[type=number] {
+	padding: 10px;
+	font-size: 16px;
+	border: 1px solid #333 !important;
+	width: 290px;
+}
+
+#rwapi-manage-wrapper input[type=number] {
+	width: 40px;
+}
+
+#rwapi-manage-wrapper input[type=checkbox] {
+	margin-right: 4px;
+}
+
+#rwapi-manage-wrapper select {
+	border: 1px solid #333333 !important;
+	margin: 5px 5px 5px 0 !important;
+}
+
+#rwapi-manage-wrapper .rwapi-select-chosen-item {
+	background: #DEDEDE;
+	display: inline-block;
+	padding: 5px 16px;
+	border-radius: 4px;
+	position: relative;
+	
+	margin: 0 5px 0 0;
+}
+
+#rwapi-manage-wrapper .rwapi-select-chosen-remove {
+	position: absolute;
+	top: -4px;
+	right: 4px;
+	font-weight: bold;
+	
+	cursor: pointer;
+	
+}
+
+#rwapi-manage-wrapper .rwapi-error {
+	background-color: #FFCCCC; 
+	border: 1px solid #FF3030;
+	padding: 10px; 
+}
+
+#reliefwebapi-insert-item table tr td {
+	border: 1px solid #bebfb9 !important;
+}

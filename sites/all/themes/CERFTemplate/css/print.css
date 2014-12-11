@@ -1,0 +1,143 @@
+
+body {
+  margin: 1em;
+  background-color: #fff;
+  font-family: sans-serif;
+}
+th {
+  text-align: left; /* LTR */
+  color: #006;
+  border-bottom: 1px solid #ccc;
+}
+tr.odd {
+  background-color: #ddd;
+}
+tr.even {
+  background-color: #fff;
+}
+td {
+  padding: 5px;
+}
+#menu {
+  visibility: hidden;
+}
+#main {
+  margin: 1em;
+}
+a:link {color: #000;}
+a:visited {color: #000;}
+a:hover {color: #00f;}
+a:link img, a:visited img {border: 0;}
+.print-footnote {font-size: xx-small;}
+img.print-logo {border: 0;}
+.print-site_name {}
+.print-breadcrumb {font-size: x-small;}
+.print-title {}
+.print-submitted {font-size: small;}
+.print-created {font-size: small;}
+.print-taxonomy {
+  text-align: right;
+}
+.print-taxonomy li {display: inline;}
+.print-content {}
+.print-hr {
+  border: 0;
+  height: 1px;
+  width: 100%;
+  color: #9E9E9E;
+  background-color: #9E9E9E;
+}
+.print-message {
+  border: medium dotted blue;
+  padding: 1em;
+}
+.print-source_url {font-size: small;}
+.print-links {font-size: small;}
+.print-footer {text-align: center;}
+#header {
+	background: transparent url(/cerf/sites/all/themes/CERFTemplate/images/CERFHomeBanner_NoLogo.jpg) no-repeat 0 0;
+	height: 132px;
+	border-bottom: 3px solid #efaa1f;
+	z-index: 2;
+}
+#donorstable {
+	width: 100%;
+	text-align: center;
+	font-size: 7pt;
+	color: #006cb6;
+	font-weight: bold;
+	vertical-align: middle;
+}
+#donorstable td{
+	height: 25px;
+	text-align: right;
+	width: 66px;
+}
+#donorstable .leftcol {
+	background: #e3e7f5;
+	color: #006cb6;
+	width: 150px;
+	text-align: left;
+	padding-left: 5px;
+}
+#donorstable .leftcol a{
+	width:88px;
+	float: left;
+}
+#donorstable .rightcol {
+	background: #e3e7f5;
+	color: #006cb6;
+	text-align: right;
+	padding-left: 5px;
+}
+#donorstable thead, #donorstable thead .leftcol, #donorstable thead .rightcol {
+	background: #717074;
+	color: white;
+	border: white;
+	font-weight: bold;
+}
+#donorstable thead td {
+	text-align: center;
+}
+
+#donorstable .tfoot, #donorstable .tfoot .leftcol, #donorstable .tfoot .rightcol {
+	background: #006cb6;
+	color: white;
+	font-weight: bold;
+	border: white;
+}
+#donorstable .other_seperator{
+	background: #EFAA1F;
+	text-align: left;
+	color: white;
+	padding-left: 5px;
+}
+#donorstable .verylastrow {
+	background: #EFAA1F;
+	color: white;
+}
+#donorstable .verylastleftcol{
+	text-align: left;
+}
+
+iframe {
+	border: 0 none;
+    display: block;
+    overflow: hidden;
+    width: 100%;
+	}
+.image-caption-container {
+height: auto !important;
+margin: 10px;
+padding: 5px;
+border: 1px solid #D7D7D7;
+background-color: white;
+-webkit-border-radius: 5px;
+-moz-border-radius: 5px;
+border-radius: 5px;
+border-image: initial;
+display: block;
+position: relative;
+min-height: 1px;
+zoom: 1.0;
+}

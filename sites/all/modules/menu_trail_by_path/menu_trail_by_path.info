@@ -1,0 +1,12 @@
+name =  "Menu Trail By Path"
+description = "Set The Menu Trail By Path."
+package = UC Merced
+core = 6.x
+php = 5.1
+
+; Information added by drupal.org packaging script on 2011-02-25
+version = "6.x-1.x-dev"
+core = "6.x"
+project = "menu_trail_by_path"
+datestamp = "1298619639"
+

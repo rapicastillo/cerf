@@ -1,0 +1,23 @@
+<div id="footer-wrapper">
+  <footer id="footer" role="contentinfo">
+    <?php print $footer_message; ?>
+    <?php if (!empty($footer)): print $footer; endif; ?>
+<div id="footerlft">
+	<a href="http://www.unocha.org/" target="_blank">OCHA</a>
+	<a href="<?php print base_path(); ?>contact-us" class="lftrght">Contact Us</a>
+</div>
+<div id="footerrght">
+	<a href="http://www.un.org/en/" target="_blank">UNITED NATIONS</a>
+	<a href="<?php print base_path(); ?>sitemap" class="rghtrght">Site Map</a>
+	<a href="<?php print base_path();?>user"></a>
+</div>
+<span id="credits"> Copyright 2012 United Nations • <a href="<?php print base_path();?>terms">Terms Of Use</a> • <a href="<?php print base_path();?>privacy">Privacy Statement</a> </span>
+  </footer> <!-- /footer -->
+</div> <!-- /footer-wrapper -->
+
+<?php print $closure; ?>
+
+</div> <!-- /page -->
+
+</body>
+</html>

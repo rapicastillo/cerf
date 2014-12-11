@@ -1,0 +1,716 @@
+<?php
+
+
+/**
+ *
+ *
+ **/
+
+function _user_is_auth(){
+
+    global $user;
+
+    if(in_array("administrators",$user->roles)){
+        return true;
+    }
+    else{
+        return false;
+    }
+    
+   
+}
+
+/**
+ *
+ *
+ ***/
+
+function donations_block($op='list',$delta=0,$edit=array()){
+    
+    $block = array();
+    $html  = "";
+    
+    switch($op){
+        
+        case "list":
+            
+            $block[0]["info"] = "Breakdown table of Donor countries and amounts per year";
+            $block[1]["info"] = "Country Break down for single year";
+            
+        break;
+        
+        case "view":
+            
+            switch($delta){
+            
+                case 0:
+                        
+                    //--- get year bounds by what is in the donations table
+                   $years                                   = _get_min_max_year();
+                   list($donors,$flags,$unpaid,$donor_ids)  = _get_donors_and_donations($years["min"],$years["max"]);
+                   $html                                    = _format_donors_table($donors,$years["min"],$years["max"],$flags,$unpaid,$donor_ids);
+                  // var_dump($donors);
+                   $block["subject"]   = "";
+                   $block["content"]   = $html;
+                   
+                break;
+            
+                case 1:
+                    
+                    
+                    if(is_numeric(arg(3))){
+                        
+                        $year                                   = arg(3);
+                        list($donors,$flags,$unpaid,$donor_ids) = _get_donors_and_donations($year,$year);
+                        $html                                   = _format_donors_table($donors,$year,$year,$flags,$unpaid,$donor_ids);
+                        
+                    }
+                   
+                   $header = "";
+                   $footer = "";
+                   /*
+                   switch($year){
+                    
+                        case 2012:
+                            $header = "<p>
+                                            For 2012, 47 Member States, one Observer and one Regional Government have pledged about $377.5 million to CERF.</p>
+                                        <p>
+                                            &nbsp;</p>
+                                        <p style=\"text-align: center;\">
+                                            <strong>CERF Pledges and Contributions</strong><strong> 2012*</strong></p>";
+                                            
+                            $footer = "<p style=\"color: #006cb6; font-size: 7pt; font-weight: bold; text-align: center;\">
+                                            * As at 8 November 2011 ** Observer States Numbers in red show that pledges have not yet been turned into full contributions.</p>
+                                        <p>
+                                            <strong>&nbsp;</strong>Download and print out CERF Pledges and Contributions<strong> 2012</strong></p>
+                                        ";
+                        break;
+                    
+                        case 2011:
+                            
+                            $header = "<p>
+                                            For 2011, 77 Member States, two Observers, one regional government, and four private organizations pledged more than $465.4 million to CERF.</p>
+                                        <p>
+                                            &nbsp;</p>
+                                        <p style=\"text-align: center;\">
+                                            <strong>CERF Pledges and Contributions</strong><strong> 2011*</strong></p>";
+                            $footer = "<p style=\"color: #006cb6; font-size: 7pt; font-weight: bold; text-align: center;\">
+                                            * As at 8 November 2011 ** Observer States Numbers in red show that pledges have not yet been turned into full contributions.</p>
+                                        <p>
+                                            <strong>&nbsp;</strong>Download and print out CERF Pledges and Contributions<strong> 2011</strong></p>";
+                            
+                        break;
+                    
+                   }
+                    */
+                   
+                    $header = "<p style=\"text-align: center;\">
+                                            <strong>CERF Pledges and Contributions</strong><strong> {$year}*</strong></p>";
+                    $footer = "<p style=\"color: #006cb6; font-size: 7pt; font-weight: bold; text-align: center;\">
+                                            * As of 8 November 2011 ** Observer States Numbers in red show that pledges have not yet been turned into full contributions.</p>
+                                        <p>
+                                            <strong>&nbsp;</strong>Download and print out CERF Pledges and Contributions<strong> {$year}</strong></p>";
+                   $block["subject"] = "";
+                   $block["content"] = $header . $html . $footer;
+                   
+                break;
+            }
+            
+        break;
+        
+    }
+    
+    return $block;
+    
+}//end donations_block
+/*
+function _years_containing_unpaid(){
+    
+    $return_array   = array();
+    
+    $sql            = "SELECT
+                            N.nid as nid,
+                            N.title as donor,
+                            CD.field_year_value as year,
+                            CD.field_amount_value as amount,
+                            CD.field_paid_value as paid
+                            
+                        FROM
+                            node N
+                            LEFT JOIN
+                                content_type_donations CD ON CD.field_donor_nid_nid = N.nid
+                        WHERE
+                            N.type = 'donors' 
+                        ORDER BY
+                            N.title,
+                            CD.field_year_value";   
+    $results        = db_query($sql);
+    
+    while(($row = db_fetch_object($results)) !== false){
+     
+        $return_array[$row->year][$row->donor] = $row->amount;
+        
+    }
+    
+    
+    return $return_array;
+    
+}
+*/
+function _format_donors_table($donors,$min,$max,$flags,$unpaid,$donor_ids){
+
+    $is_admin   = _user_is_auth();
+    $don_2012   = array();
+    $don2_2012  = array();
+    $last_row       = array();
+    $last_row2      = array();
+    $no_pay  = array();
+    $no_pay2 = array();
+    $html = "<table id=\"donorstable\" cellspacing=\"0\" border=\"1\">"; 
+    $html.= "<thead>";
+    $html.= "<tr>";
+    $html.= "<td class=\"leftcol\" rowspan=\"2\">Member States and Observers</td>";
+    
+    $offset = 0;
+    $header = "";
+    
+    for($i = $min; $i <= $max; $i++){
+        
+        if($i != 2012){
+        
+            if(isset($unpaid[$i])){
+                
+                if($i != 2011){
+                    
+                    $header .= "<td>{$i}<br />(unpaid)</td>";
+                    $header .= "<td>{$i}<br />(paid)</td>";
+                    
+                }
+                else{
+                
+                    $header .= "<td>{$i}<br />Unpaid Pledges (\$US)</td>";
+                    $header .= "<td>{$i}<br />Paid Pledges (\$US)</td>";
+                    
+                }
+                
+                $offset++;
+            }
+            else{
+                
+                $header .= "<td>{$i}</td>";
+                
+            }
+        }
+        else{
+            
+            $header .= "<td>{$i}<br />(verbal)</td>";
+            $header .= "<td>{$i}<br />(written)</td>";
+            $header .= "<td>{$i}<br />(paid)</td>";
+            
+        }
+        $last_row[$i]   = 0;
+        
+    }
+    $html.= "<td colspan='" . ($max - $min +5 + $offset) . "'>Pledges and Contributions</td>";
+    $html.= "</tr>";
+    $html.= "<tr>";
+    
+    $html .= $header;
+    $html.= "<td>Total</td>";
+    $html.= "</tr>";
+    $html.= "</thead>";
+    
+    $html.= "<tbody>";
+    
+    foreach($donors as $donor => $donations){
+        
+        $total = 0;
+        if($donor_ids[$donor]["member"] === true){
+        $html.= "<tr>";
+        
+        if($is_admin === true && isset($donor_ids[$donor])){
+            $html.= "<td class='leftcol'>" . (isset($flags[$donor]) ? (l($donor,"node/{$donor_ids[$donor][nid]}/edit"). "<img width=\"42\" height=\"25\"  style='float:right;' alt=\"\" src='{$GLOBALS['base_url']}/{$flags[$donor]}' />") : l($donor,"node/{$donor_ids[$donor][nid]}/edit")) ."</td>";
+        }
+        else{
+            $html.= "<td class='leftcol'>" . (isset($flags[$donor]) ? ($donor. "<img width=\"42\" height=\"25\"  style='float:right;' alt=\"\" src='{$GLOBALS['base_url']}/{$flags[$donor]}' />") : $donor) ."</td>";
+        }
+        foreach($donations as $year => $values){
+              
+            if(isset($values["amount"])){
+            
+            $last_row[$year]    += $values["amount"];
+            $last_row2[$year]   += 0;
+            $total              += $values["amount"]  + $values["written"] + $values["verbal"];
+            
+            $written_red = ($values["written_red"] === true) ? " class='flagged_red'" : "";
+            $paid_red = ($values["red"] === true) ? " class='flagged_red'" : "";
+            $verbal_red = ($values["verbal_red"] === true) ? " class='flagged_red'" : "";
+            $unpaid_red = ($values["unpaid_red"] === true) ? " class='flagged_red'" : "";
+            
+            
+            if($year != 2012){    
+                if(!is_null($values["unpaid"]) && $values["unpaid"] > 0){
+                    $total += $values["unpaid"];
+                    
+                    $color = "";
+                    /*
+                    if($year == 2010 || $year == 2011){
+                        
+                        if($values['red'] === true){
+                            
+                            $color = " class='flagged_red' ";
+                            
+                        }
+                        
+                    }
+                    */
+                    if($is_admin === true){
+                    
+                        $html               .= "<td{$unpaid_red}>" . ($values["unpaid"] > 0 ? l(number_format($values["unpaid"]),"node/{$values['nid']}/edit")  : l("Add Entry","node/add/donations" )). "</td>";
+                        $html               .= "<td{$paid_red}>" . ($values["amount"] > 0 ? l(number_format($values["amount"]),"node/{$values['nid']}/edit" ) : l("Add Entry","node/add/donations" )) . "</td>";
+                    
+                    }
+                    else{
+                        
+                        $html               .= "<td{$unpaid_red}>" . ($values["unpaid"] > 0 ? number_format($values["unpaid"]) : "&nbsp;") . "</td>";
+                        $html               .= "<td{$paid_red}>" . ($values["amount"] > 0 ? number_format($values["amount"]) : "&nbsp;") . "</td>";
+                        
+                    }
+                    //$last_row[$year."unpaid"]    += $values["unpaid"];
+                    $no_pay[$year]+=$values["unpaid"];
+                    $no_pay2[$year]+= 0;
+                }
+                else{
+                if($unpaid[$year]){
+                        $html .= ($is_admin) ? "<td>" . l("Add Entry","node/add/donations") . "</td>": "<td>&nbsp;</td>";
+                       
+                }
+                if($is_admin === true){
+                    $html               .= "<td{$paid_red}>" . ($values["amount"] > 0 ? l(number_format($values["amount"]),"node/{$values['nid']}/edit") : l("Add Entry","node/add/donations" )) . "</td>";
+                }
+                else{
+                    $html               .= "<td{$paid_red}>" . ($values["amount"] > 0 ? number_format($values["amount"]) : "&nbsp;") . "</td>";
+                }
+                
+            }
+           
+            
+            
+            }
+            else{
+                //$total += $values['verbal'] + $values['written'] + $values['paid'];
+                if($is_admin === true){
+                 
+                    $html .= "<td{$verbal_red}>" . (is_numeric($values['verbal']) && $values['verbal'] > 0 ? l(number_format($values['verbal']),"node/{$values[nid]}/edit") : l("Add Entry","node/donations/add")). "</td>";
+                    $html .= "<td{$written_red}>" . (is_numeric($values['written']) && $values['written'] > 0 ? l(number_format($values['written']),"node/{$values[nid]}/edit") : l("Add Entry","node/donations/add")) . "</td>";
+                    $html .= "<td{$paid_red}> " . (is_numeric($values['amount']) && $values['amount'] > 0 ? l(number_format($values['amount']),"node/{$values[nid]}/edit") : l("Add Entry","node/donations/add")). "</td>";
+                    
+                }
+                else{
+                    $html .= "<td{$verbal_red}>" . (is_numeric($values['verbal']) && $values['verbal'] > 0 ? number_format($values['verbal']) : "&nbsp;") . "</td>";
+                    $html .= "<td{$written_red}>" . (is_numeric($values['written']) && $values['written'] > 0 ? number_format($values['written']) : "&nbsp;") . "</td>";
+                    $html .= "<td{$paid_red}>" . (is_numeric($values['amount']) && $values['amount'] > 0 ? number_format($values['amount']) : "&nbsp;") . "</td>";
+                }
+                $don_2012[$year] = array(
+                                            "verbal" => ($don_2012[$year]['verbal'] + $values["verbal"]),
+                                            "written" => ($don_2012[$year]['written'] + $values['written']),
+                                            "paid"     => ($don_2012[$year]['paid'] + $values['amount'])
+                                         
+                                         );
+            }
+        }
+       
+        
+          
+        }
+        
+        $html.= "<td class='rightcol'>" . number_format($total) . "</td>";
+        $html.="</tr>";
+        }//end if
+    }
+    $other = "";
+     foreach($donors as $donor => $donations){
+        
+        $total = 0;
+        if($donor_ids[$donor]["member"] !== true){
+        $other.= "<tr>";
+        
+        if($is_admin === true && isset($donor_ids[$donor])){
+            $other.= "<td class='leftcol'>" . (isset($flags[$donor]) ? (l($donor,"node/{$donor_ids[$donor][nid]}/edit"). "<img width=\"42\" height=\"25\"  style='float:right;' alt=\"\" src='{$GLOBALS['base_url']}/{$flags[$donor]}' />") : l($donor,"node/{$donor_ids[$donor][nid]}/edit")) ."</td>";
+        }
+        else{
+            $other.= "<td class='leftcol'>" . (isset($flags[$donor]) ? ($donor. "<img width=\"42\" height=\"25\"  style='float:right;' alt=\"\" src='{$GLOBALS['base_url']}/{$flags[$donor]}' />") : $donor) ."</td>";
+        }
+        foreach($donations as $year => $values){
+            
+            if(isset($values["amount"])){
+                
+                $last_row[$year]    += 0;
+                $last_row2[$year]   += $values["amount"];
+                $total              += $values["amount"]  + $values["written"] + $values["verbal"];
+                
+                $written_red = ($values["written_red"] === true) ? " class='flagged_red'" : "";
+                $paid_red = ($values["red"] === true) ? " class='flagged_red'" : "";
+                $verbal_red = ($values["verbal_red"] === true) ? " class='flagged_red'" : "";
+                $unpaid_red = ($values["unpaid_red"] === true) ? " class='flagged_red'" : "";
+                
+                if($year != 2012){    
+                    if(!is_null($values["unpaid"]) && $values["unpaid"] > 0){
+                        
+                        $total += $values["unpaid"];
+                        
+                        $color = "";
+                    /*
+                        if($year == 2010 || $year == 2011){
+                             if($values['red'] === true){
+                            
+                                $color = " class='flagged_red' ";
+                            
+                            }
+                        }
+                    */    
+                        if($is_admin === true){
+                        
+                            $other               .= "<td{$unpaid_red}>" . ($values["unpaid"] > 0 ? l(number_format($values["unpaid"]),"node/{$values['nid']}/edit")  : l("Add Entry","node/add/donations" )). "</td>";
+                            $other               .= "<td{$paid_red}>" . ($values["amount"] > 0 ? l(number_format($values["amount"]),"node/{$values['nid']}/edit" ) : l("Add Entry","node/add/donations" )) . "</td>";
+                        
+                        }
+                        else{
+                            
+                            $other               .= "<td{$unpaid_red}>" . ($values["unpaid"] > 0 ? number_format($values["unpaid"]) : "&nbsp;") . "</td>";
+                            $other               .= "<td{$paid_red}>" . ($values["amount"] > 0 ? number_format($values["amount"]) : "&nbsp;") . "</td>";
+                            
+                        }
+                        //$last_row[$year."unpaid"]    += $values["unpaid"];
+                        $no_pay2[$year]+= $values["unpaid"];
+                        $no_pay[$year] +=0;
+                    }
+                    else{
+                    if($unpaid[$year]){
+                        $other .= ($is_admin) ? "<td>" . l("Add Entry","node/add/donations") . "</td>": "<td>&nbsp;</td>";
+                       
+                    }
+                    if($is_admin === true){
+                        $other               .= "<td{$paid_red}>" . ($values["amount"] > 0 ? l(number_format($values["amount"]),"node/{$values['nid']}/edit") : l("Add Entry","node/add/donations" )) . "</td>";
+                    }
+                    else{
+                        $other               .= "<td{$paid_red}>" . ($values["amount"] > 0 ? number_format($values["amount"]) : "&nbsp;") . "</td>";
+                    }
+                    
+                }
+               
+                
+                
+                }
+                else{
+                    //$total += $values['verbal'] + $values['written'] + $values['paid'];
+                    if($is_admin === true){
+                 
+                    $other .= "<td{$verbal_red}>" . (is_numeric($values['verbal']) && $values['verbal'] > 0 ? l(number_format($values['verbal']),"node/{$values[nid]}/edit") : l("Add Entry","node/donations/add")). "</td>";
+                    $other .= "<td{$written_red}>" . (is_numeric($values['written']) && $values['written'] > 0 ? l(number_format($values['written']),"node/{$values[nid]}/edit") : l("Add Entry","node/donations/add")) . "</td>";
+                    $other .= "<td{$paid_red}>" . (is_numeric($values['amount']) && $values['amount'] > 0 ? l(number_format($values['amount']),"node/{$values[nid]}/edit") : l("Add Entry","node/donations/add")). "</td>";
+                    
+                    }
+                    else{
+                        $other .= "<td{$verbal_red}>" . (is_numeric($values['verbal']) && $values['verbal'] > 0 ? number_format($values['verbal']) : "&nbsp;") . "</td>";
+                        $other .= "<td{$written_red}>" . (is_numeric($values['written']) && $values['written'] > 0 ? number_format($values['written']) : "&nbsp;") . "</td>";
+                        $other .= "<td{$paid_red}>" . (is_numeric($values['amount']) && $values['amount'] > 0 ? number_format($values['amount']) : "&nbsp;") . "</td>";
+                    }
+                     $don2_2012[$year]  = array(
+                                            "verbal"    => ($don2_2012[$year]['verbal'] + $values['verbal']),
+                                            "written"   => ($don2_2012[$year]['written'] +$values['written']),
+                                            "paid"      => ($don2_2012[$year]['paid'] +$values['amount'])
+                                         
+                                         );
+                }
+            }
+           
+        }
+        
+        $other.= "<td class='rightcol'>" . number_format($total) . "</td>";
+        $other.="</tr>";
+        }//end if
+    }
+    
+    $right_total = 0;
+    $foot = "";
+    $foot .= "<tr class='tfoot'>";
+    
+    if($is_admin === true){
+        
+        $foot .= "<td class='leftcol'>
+                    Total
+                    <br />
+                    <span class='add_donor_link_container' style='background-color:white;'>". l("Add Donor","node/add/donors") . "</span>
+                  </td>"; 
+        
+    }
+    else{
+        
+        $foot .= "<td class='leftcol'>Total</td>";
+        
+    }
+    
+    foreach($last_row as $year => $amt){
+        
+        if($year != 2012){
+            
+            if(isset($no_pay[$year])){
+                
+                $foot           .= "<td>" . number_format($no_pay[$year]) . "</td>";
+                $foot           .= "<td>" . number_format($amt) . "</td>";
+                $right_total    += ($amt + $no_pay[$year]);
+                
+            }
+            else{
+                 $foot           .= "<td>" . number_format($amt) . "</td>";
+               
+                $right_total    += $amt;
+            }
+        }
+        
+        else{
+            
+            $foot .= "<td>" . number_format($don_2012[$year]['verbal']) . "</td>";
+            $foot .= "<td>" . number_format($don_2012[$year]['written']) . "</td>";
+            $foot .= "<td>" . number_format($don_2012[$year]['paid']). "</td>";
+            $right_total += $don_2012[$year]['verbal'] + $don_2012[$year]['written'] + $don_2012[$year]['paid']; 
+        }
+    }
+    $foot .= "<td>" . number_format($right_total) . "</td>";
+    $foot .= "</tr>";
+    
+     $foot2 = "";
+    $foot2 .= "<tr class='tfoot'>";
+    
+    if($is_admin === true){
+        
+        $foot2 .= "<td class='leftcol'>
+                    Total
+                    <br />
+                    <span class='add_donor_link_container' style='background-color:white;'>". l("Add Donor","node/add/donors") . "</span>
+                  </td>"; 
+        
+    }
+    else{
+        
+        $foot2 .= "<td class='leftcol'>Total</td>";
+        
+    }
+    $right_total2   = 0;
+    $overall_total  = "<tr class='verylastrow'><td class='verylastleftcol'>Overall Total</td>";
+    
+    foreach($last_row2 as $year => $amt){
+        
+        if($year != 2012){
+            
+            if(isset($no_pay2[$year])){
+                
+                $foot2           .= "<td>" . number_format($no_pay2[$year]) . "</td>";
+                $foot2           .= "<td>" . number_format($amt) . "</td>";
+                $right_total2    += ($amt + $no_pay2[$year]);
+                $overall_total .= "<td>" .  number_format($no_pay2[$year] + $no_pay[$year]) . "</td>";
+                $overall_total .= "<td>" . number_format($last_row[$year] + $amt) . "</td>";
+                
+            }
+            else{
+                
+                $foot2           .= "<td>" . number_format($amt) . "</td>";
+                $overall_total .= "<td>" .  number_format(($last_row[$year] + $amt)) . "</td>";
+                $right_total2    += $amt;
+                
+            }
+        }
+        else{
+            
+             $foot2 .= "<td>" . number_format($don2_2012[$year]['verbal']) . "</td>";
+            $foot2 .= "<td>" . number_format($don2_2012[$year]['written']) . "</td>";
+            $foot2 .= "<td>" . number_format($don2_2012[$year]['paid']) . "</td>";
+            $right_total2 += $don2_2012[$year]['verbal'] + $don2_2012[$year]['written'] + $don2_2012[$year]['paid'];
+            
+             $overall_total .= "<td>" . number_format($don2_2012[$year]['verbal'] + $don_2012[$year]['verbal']) . "</td>";
+            $overall_total .= "<td>" . number_format($don2_2012[$year]['written'] + $don_2012[$year]['written']) . "</td>";
+            $overall_total .= "<td>" . number_format($don2_2012[$year]['paid'] + $don_2012[$year]['paid']) . "</td>";
+        }
+        /*
+        if(isset($no_pay[$year]) && isset($no_pay2[$year])){
+            
+            $overall_total .= "<td>" .  . "</td>";
+            
+        }
+        */
+    }
+    
+    $overall_total .= "<td>" . number_format($right_total + $right_total2) . "</td></tr>";
+    
+    $foot2 .= "<td>" . number_format($right_total2) . "</td>";
+    $foot2 .= "</tr>";
+    
+    $html.= $foot;
+    $html .= "<tr><td align='left' colspan='" . ($max - $min + 5 + $offset) . "' class=\"other_seperator\">Other</td></tr>";
+    $html .= $other;
+    $html.= $foot2;
+    $html .= $overall_total;
+    $html .= "</tbody>";
+    $html .= "</table>";
+    
+    return $html;
+    
+}
+
+function _get_donors_and_donations($min,$max){
+    
+   
+    
+    //--- get donors and arrange data in table form
+    $return_array   = array();
+    $nids           = array();
+    $flags          = array();
+    $unpaid         = array();
+    $years          = array();
+    $sql            = "SELECT
+                            N.nid as nid,
+                            N.title as donor,
+                            C.field_flag_data as flag_obj,
+                            CD.nid as donation_nid,
+                            CD.field_year_value as year,
+                            CD.field_amount_value as amount,"
+                            . (($min == $max && ($max < 2011)) ? "CD.field_single_year_unpaid_value as unpaid,": "CD.field_unpaid_amount_value as unpaid,")  . 
+                            "
+                            CD.field_verbal_amount_value as verbal,
+                            CD.field_written_amount_value as written,
+                            CD.field_red_value as red,
+                            CD.field_red_unpaid_value as unpaid_red,
+                            CD.field_red_written_value as written_red,
+                            CD.field_red_verbal_value as verbal_red,
+                            (
+                                select
+                                    sum(case when field_amount_value is null then 0 else field_amount_value end) +
+                                    sum(case when field_unpaid_amount_value is null then 0 else field_unpaid_amount_value end) +
+                                    sum(case when field_verbal_amount_value is null then 0 else  field_verbal_amount_value end) +
+                                    sum(case when field_written_amount_value is null then 0 else field_written_amount_value end ) 
+                                from
+                                    content_type_donations
+                                where
+                                    field_donor_nid_nid = N.nid
+                                    " . (($min == $max) ? " AND field_year_value = {$min} " : "") . "
+                            ) as total,
+                            C.field_member_value as member
+                            
+                        FROM
+                            node N
+                            LEFT JOIN
+                                content_type_donors C ON C.nid = N.nid
+                            LEFT JOIN
+                                content_type_donations CD ON CD.field_donor_nid_nid = N.nid
+                        WHERE
+                            N.type = 'donors'
+                            " . (($min == $max) ? " AND CD.field_year_value = {$min} " : "") . "
+                        ORDER BY
+                            member desc,
+                            total desc,
+                            N.title,
+                            CD.field_year_value";   
+    $results        = db_query($sql);
+    
+    for($i=$min; $i <= $max;$i++){
+        
+        $years[] = $i;
+        
+    }
+    
+    while(($row = db_fetch_object($results)) !== false){
+        
+        foreach($years as $yr){
+            if(!isset($return_array[$row->donor][$yr])){
+            
+               $return_array[$row->donor][$yr] = array("amount" =>0, "unpaid"=>0);
+            
+            }
+        }
+        $return_array[$row->donor][$row->year]  = array(
+                                                            "amount"    => (!is_null($row->amount) ? $row->amount : 00000000) ,
+                                                            "unpaid"    => ( !is_null($row->unpaid) ? $row->unpaid : 0),
+                                                            "nid"       => $row->donation_nid,
+                                                            "donor_nid" => $row->nid,
+                                                            "member"    => (($row->member == 1) ? true : false),
+                                                            "verbal"    => is_numeric($row->verbal) ? $row->verbal : 0,
+                                                            "written"   => is_numeric($row->written) ? $row->written : 0,
+                                                            "red"       => ($row->red == 1) ? true : false,
+                                                            "unpaid_red" => ($row->unpaid_red == 1) ? true : false,
+                                                            "written_red" => ($row->written_red == 1) ? true : false,
+                                                            "verbal_red" => ($row->verbal_red == 1) ? true : false
+                                                        );
+        if(!is_null($row->unpaid) && $row->unpaid > 0 ){
+        
+            $unpaid[$row->year] =  true;
+        
+        }
+        
+        $nids[$row->donor] = array(
+                                    "nid"       => $row->nid,
+                                    "member"    => (($row->member == 1) ? true : false)
+                                   );
+       
+    }
+    
+    foreach($return_array as $donor => $years_array){
+       
+        for($i = $min; $i <= $max; $i++){
+       
+            if(!isset($years_array[$i])){
+       
+                $return_array[$donor][$i] = array(
+                                                  "amount" => 00000000,
+                                                  "unpaid" => 0,
+                                                  "verbal" => 0,
+                                                  "written" => 0
+                                                  );
+                
+            }
+            
+        }
+        
+    }
+    
+    foreach($nids as $donor => $nid){
+        
+        $node = node_load($nid["nid"]);
+        
+        if(is_array($node->field_flag[0])){
+            
+            $flags[$donor] = $node->field_flag[0]["filepath"]; 
+            
+        }
+        
+    }
+    
+    return array($return_array,$flags,$unpaid,$nids);
+}
+
+/**
+ *
+ *
+ *
+ ***/
+function _get_min_max_year(){
+    
+    //--- get min and max years present in the donations table
+    
+    $sql        = " SELECT
+                        max( field_year_value ) as max_year,
+                        min( field_year_value ) as min_year
+                    FROM
+                        content_type_donations";
+    $results    = db_query($sql);
+    $row        = db_fetch_object($results);
+    $max        = isset($row->max_year) ? $row->max_year : 2013;
+    $min        = isset($row->min_year) ? $row->min_year : 2006;
+    
+    
+    return array(
+                    "min"   => $min,
+                    "max"   => $max  
+                );
+    
+}

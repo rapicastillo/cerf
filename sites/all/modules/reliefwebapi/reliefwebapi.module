@@ -1,0 +1,545 @@
+<?php 
+/**
+ * @file Relief Web Interface 
+ */
+
+ 
+function reliefwebapi_init() {
+
+}
+ 
+function reliefwebapi_help ($path, $arg) {
+	$asset_path = drupal_get_path('module', 'reliefwebapi');
+	
+	switch ($path) {
+	    case "admin/help#reliefwebapi":
+	      return '<p>' . t("Displays Relief Web API Interface") . '</p>';
+	      break;
+  	}
+} 
+
+function reliefwebapi_perm() {
+  return array('access reliefwebapi content');
+} // function onthisdate_perm()
+
+function reliefwebapi_block($op='list', $delta=0, $edit = array()) {
+	$asset_path = drupal_get_path('module', 'reliefwebapi');
+	$block = array();
+	switch($op){
+		case 'list' :
+			$block[0]['info'] = t('Relief Web Filtered Content');
+			break;
+    	case 'view':
+			
+			$block['subject'] = 'ReliefWeb API';
+		
+			drupal_add_js($asset_path . '/js/plugin/jquery.dotdotdot-1.5.9.min.js');
+			drupal_add_css($asset_path . '/css/list.css');
+			drupal_add_js($asset_path . '/js/list.js');
+			
+			
+			 
+			$items = reliefwebapi_retrieve_chosen_filters();
+			if (empty( $items ) ) {
+				$block['content'] = "No filters set.";
+			} else {
+	      		$block['content'] =  theme('reliefwebapi_filters_list', $items);
+			} 
+			break;
+		case "save":
+	      break;
+	
+	    case "configure":
+	      break;	
+	      
+		default: break;
+   }
+	
+	return $block;
+}
+
+function reliefwebapi_retrieve_chosen_filters() {
+	$query = db_query('SELECT rid, name, primary_country, country, organisation, theme, disaster_type, vulnerable_groups, content_format, language, published_date, post_num_on_list, 
+				post_num_on_single, show_thumb_on_list, show_thumb_on_single, show_blurb_on_list, show_blurb_on_single, list_view_design 
+		FROM reliefweb');
+		
+	$items = array();
+	while ($item = db_fetch_array($query)) {
+		$items[] = array(
+			"id" => $item['rid'], 
+			"name" => $item['name'], 
+			"primary_country" => $item['primary_country'],
+			"country" => explode($delimiter, $item['country']),
+			"organisation" => explode($delimiter, $item['organisation']),
+			"theme" => explode($delimiter, $item['theme']),
+			"disaster_type" => explode($delimiter, $item['disaster_type']),
+			"vulnerable_groups" => explode($delimiter, $item['vulnerable_groups']),
+			"content_format" => explode($delimiter, $item['content_format']), 
+			"language" => explode($delimiter, $item['language']), 
+			"published_date" => explode($delimiter, $item['published_date']),
+			
+			"post_num_on_list" => $item['post_num_on_list'],
+			"post_num_on_single" => $item['post_num_on_single'],
+			"show_thumb_on_list" => $item['show_thumb_on_list'],
+			"show_thumb_on_single" => $item['show_thumb_on_single'],
+			"show_blurb_on_list" => $item['show_blurb_on_list'],
+			"show_blurb_on_single" => $item['show_blurb_on_single'],
+			"list_view_design" => $item['list_view_design']);
+		
+	}
+			
+    return $query; 
+}
+
+function reliefwebapi_retrieve_filter($id) {
+	$target =  array();
+	
+	$result = db_query('SELECT rid, name, primary_country, country, organisation, theme, disaster_type, vulnerable_groups, content_format, language, published_date, post_num_on_list, 
+				post_num_on_single, show_thumb_on_list, show_thumb_on_single, show_blurb_on_list, show_blurb_on_single, list_view_design 
+		FROM reliefweb WHERE rid=%d LIMIT 1', $id);
+		
+		
+	$delimiter = "|";
+	if ($item = db_fetch_array($result)) {
+		$target = array(
+			"id" => $item['rid'], 
+			"name" => $item['name'], 
+			"primary_country" => $item['primary_country'],
+			"country" => explode($delimiter, $item['country']),
+			"organisation" => explode($delimiter, $item['organisation']),
+			"theme" => explode($delimiter, $item['theme']),
+			"disaster_type" => explode($delimiter, $item['disaster_type']),
+			"vulnerable_groups" => explode($delimiter, $item['vulnerable_groups']),
+			"content_format" => explode($delimiter, $item['content_format']), 
+			"language" => explode($delimiter, $item['language']), 
+			"published_date" => explode($delimiter, $item['published_date']),
+			
+			"post_num_on_list" => $item['post_num_on_list'],
+			"post_num_on_single" => $item['post_num_on_single'],
+			"show_thumb_on_list" => $item['show_thumb_on_list'],
+			"show_thumb_on_single" => $item['show_thumb_on_single'],
+			"show_blurb_on_list" => $item['show_blurb_on_list'],
+			"show_blurb_on_single" => $item['show_blurb_on_single'],
+			"list_view_design" => $item['list_view_design']);
+		
+	}
+	
+    return $target; 
+}
+
+
+
+function reliefwebapi_get_all_filters() {
+	$items = array();
+	$result = db_query('
+		SELECT rid, name, primary_country, country, organisation, theme, disaster_type, vulnerable_groups, content_format, language, published_date, post_num_on_list, 
+				post_num_on_single, show_thumb_on_list, show_thumb_on_single, show_blurb_on_list, show_blurb_on_single, list_view_design 
+		FROM reliefweb
+	');
+	
+	$delimiter = "|";
+	while ($item = db_fetch_array($result)) {
+		$items[] = array(
+			"id" => $item['rid'], 
+			"name" => $item['name'], 
+			"primary_country" => $item['primary_country'],
+			"country" => explode($delimiter, $item['country']),
+			"organisation" => explode($delimiter, $item['organisation']),
+			"theme" => explode($delimiter, $item['theme']),
+			"disaster_type" => explode($delimiter, $item['disaster_type']),
+			"vulnerable_groups" => explode($delimiter, $item['vulnerable_groups']),
+			"content_format" => explode($delimiter, $item['content_format']), 
+			"language" => explode($delimiter, $item['language']), 
+			"published_date" => explode($delimiter, $item['published_date']),
+			
+			"post_num_on_list" => $item['post_num_on_list'],
+			"post_num_on_single" => $item['post_num_on_single'],
+			"show_thumb_on_list" => $item['show_thumb_on_list'],
+			"show_thumb_on_single" => $item['show_thumb_on_single'],
+			"show_blurb_on_list" => $item['show_blurb_on_list'],
+			"show_blurb_on_single" => $item['show_blurb_on_single'],
+			"list_view_design" => $item['list_view_design']
+		);
+	}
+
+	return $items;
+}
+
+
+
+function reliefwebapi_menu() {
+	$items = array();
+	
+	$items['admin/settings/content/reliefwebapi'] = array(
+		'title' => 'ReliefWeb API Filters',
+		'page callback' => 'reliefwebapi_list',
+		'page arguments' => array('reliefwebapi_list'),
+		'description' => 'Manage ReliefWeb Api',
+		'access arguments' => array('access adminstration pages'),
+		'type' => MENU_NORMAL_ITEM
+	);
+	
+	$items['admin/settings/content/reliefwebapi/add'] = array(
+		'title' => 'ReliefWeb API Insert Filter',
+		'description' => 'Manage ReliefWeb Add ',
+		'page callback' => 'reliefwebapi_add', 
+		'page arguments' => array('reliefwebapi_add'),
+		'access arguments' => array('access adminstration pages'),
+		'type' => MENU_NORMAL_ITEM
+	);
+	
+	$items['admin/settings/reliefwebapi/insert'] = array(
+		'title' => 'ReliefWeb API Insert Handler',
+		'description' => 'Handler for the ReliefWeb API Filter Insert',
+		'page callback' => 'reliefwebapi_insert',
+		'page arguments' => array('reliefwebapi_insert'),
+		'access arguments' => array('access administration pages'),
+		'type' => MENU_CALLBACK
+	);
+	
+	$items['reliefweb/list'] = array(
+		'title' => 'ReliefWeb List',
+		'description' => 'Show the listing for the specific reliefweb filter',
+		'page callback' => 'reliefwebapi_list_all_filter',
+		'page arguments' => array('reliefwebapi_list', 'filter_id'),
+		'access arguments' => array('anonymous users'),
+		'type' => MENU_CALLBACK
+	);
+	
+	$items['admin/settings/content/reliefwebapi/edit'] = array(
+		'title' => 'Edit ReliefWeb Filter',
+		'description' => 'Edit relief filter',
+		'page callback' => 'reliefwebapi_edit',
+		'page arguments' => array('reliefwebapi_edit', 'filter_id'),
+		'access arguments' => array('reliefwebapi administration pages'),
+		'type' => MENU_CALLBACK
+	);
+	
+	$items['admin/settings/content/reliefwebapi/delete'] = array(
+		'title' => 'ReliefWeb API Delete Handler',
+		'description' => 'Handler for the ReliefWeb API Filter Deletion',
+		'page callback' => 'reliefwebapi_delete',
+		'page arguments' => array('reliefwebapi_delete'),
+		'access arguments' => array('reliefwebapi administration pages'),
+		'type' => MENU_CALLBACK
+	);
+	
+	$items['reliefweb/list_json'] = array(
+		'title' => 'ReliefWeb API Delete Handler',
+		'description' => 'Returns ReliefWeb items in JSON',
+		'page callback' => 'reliefwebapi_list_all_json',
+		'page arguments' => array('reliefwebapi_list_all_json'),
+		'access arguments' => array('reliefwebapi anonymous users'),
+		'type' => MENU_CALLBACK
+	);
+	
+	$items['reliefweb/save_content'] = array(
+		'title' => 'ReliefWeb API Delete Handler',
+		'description' => 'Returns ReliefWeb items in JSON',
+		'page callback' => 'reliefwebapi_save_content',
+		'page arguments' => array('reliefwebapi_save_content'),
+		'access arguments' => array('reliefwebapi anonymous users'),
+		'type' => MENU_CALLBACK
+	);
+	return $items;
+}
+
+function reliefwebapi_list() {
+	$filters = reliefwebapi_get_all_filters();
+	$asset_path = drupal_get_path('module', 'reliefwebapi');
+	
+	drupal_add_css($asset_path . '/css/view_all_filters.css');
+	drupal_add_js($asset_path . '/js/view_all_filters.js');
+	return theme('reliefwebapi_view_all_filters', $filters);
+}
+ 
+function reliefwebapi_list_all_filter() {
+	$target_id = arg(2);
+	
+	$asset_path = drupal_get_path('module', 'reliefwebapi');
+	
+	$offset = isset($_GET["offset"]) ? $_GET["offset"] : 0;
+	
+	drupal_add_css($asset_path . '/css/list_all.css');
+	drupal_add_js($asset_path . '/js/list_all.js');
+	
+	$filter = reliefwebapi_retrieve_filter($target_id);
+	//$filter = array();
+	/*
+	if (isset( $_GET['primary_country']) ) {
+		$filter['primary_country'] = t ( $_GET['primary_country'] );
+	}
+
+	if (isset($_GET['country'])) {
+		$filter['country'] = t( $_GET['country'] ) ;
+	}
+	
+	$filter['post_num_on_single'] = isset($_GET['sing_show_count']) ? $_GET['sing_show_count'] : 5;
+	$filter['show_thumb_on_single'] = isset($_GET['sing_show_thumb']) ? $_GET['sing_show_thumb'] : 0;
+	$filter['show_blurb_on_single'] = isset($_GET['sing_show_blurb']) ? $_GET['sing_show_blurb'] : 0;
+	*/
+	
+	return theme('reliefwebapi_list_all', 
+		$filter, $offset, $filter['post_num_on_single']
+	);
+	
+}
+
+function reliefwebapi_list_all_json() {
+	$filter_id = isset($_GET['fid']) ? $_GET['fid'] : NULL; 
+	$limit = isset($_GET['limit']) ? $_GET['limit'] : 1;  
+	
+	if (!$filter_id) {
+		$query = "SELECT {reliefweb_id}, {title}, {body}, {url}, {image} FROM reliefweb_content ORDER BY reliefweb_id DESC LIMIT %d";
+		$result = db_query($query, $limit);	
+	} else {
+		$query = "SELECT {rw.reliefweb_id}, {title}, {body}, {url}, {image}
+					FROM reliefweb_content rw 
+					JOIN reliefweb_content_filter rcf 
+						ON rw.reliefweb_id=rcf.reliefweb_id
+					WHERE rcf.filter_id = %d
+					ORDER BY reliefweb_id DESC 
+					LIMIT %d";
+		$result = db_query($query, $filter_id, $limit);
+	}
+	
+	$json_output = array('items' => array(), 'filter_id' => $filter_id);
+	
+	while($obj = db_fetch_object($result)) {
+		$json_output['items'][] = array('id' => $obj->reliefweb_id, 'title' => t($obj->title), 'body'=> t($obj->body), 'url' => t($obj->url), 'image' => t($obj->image));
+	}
+	
+	drupal_set_header('Content-Type: application/json');
+
+	echo json_encode($json_output);
+}
+
+/**
+ * This function will save all the content from reliefweb onto the servers for back up 
+ * in case ReliefWeb is down
+ */
+function reliefwebapi_save_content() {
+	$message = isset($_POST['message']) ? $_POST['message'] : NULL;
+	$success = TRUE; //$success=FALSE;
+	/*
+	if ($message) {
+		$content = $message;
+		$query = "SELECT cid FROM {reliefweb_content} WHERE reliefweb_id=%d";
+		$query_insert_rwc = "INSERT INTO {reliefweb_content} ({reliefweb_id}, {title}, {body}, {url}, {image}) VALUES (%d, '%s', '%s', '%s', '%s')"; //Insert into ReliefWeb Content
+		$query_insert_rwc_rel = "INSERT IGNORE INTO {reliefweb_content_filter} ({reliefweb_id}, {filter_id}) VALUES (%d, %d)"; //Insert relationship of filter and content
+
+		$query_update_rwc = "UPDATE {reliefweb_content} SET {title}='%s', {body}='%s', {url}='%s', {image}='%s' WHERE {reliefweb_id}=%d";
+
+
+		$included_id = array();
+		if ($content['data']) {
+			foreach($content['data']['list'] as $list_item) {
+				$title = isset($list_item['fields']['title']) ? $list_item['fields']['title'] : "";
+				$body = isset($list_item['fields']['body']) ? $list_item['fields']['body'] : "";
+				$image = isset($list_item['fields']['image']) 
+					? $list_item['fields']['image']['url-small'] 
+					: (
+						isset($list_item['fields']['file']) 
+						&& count($list_item['fields']['file'])
+							? $list_item['fields']['file'][0]['preview']['url-small'] 
+							: "/images/ocha.jpg"
+					);
+
+				$result = db_query($query, $list_item['id']);
+				
+				$included_id[] = $title; 
+				if ($res = db_fetch_array($result)) {
+					// Update item in rw backup
+					db_query($query_update_rwc, t(substr($title, 0, 199)), t(substr($body, 0, 999)), t($list_item['fields']['url']), $image, $list_item['id']);
+				} else {
+					// Create item into rw backup
+					db_query($query_insert_rwc, $list_item['id'], t($title), t(substr($body, 0, 999)), t($list_item['fields']['url']), $image);
+					db_query($query_insert_rwc_rel, $list_item['id'], $content['filter_id']);
+
+
+				}
+			}
+		} 
+
+		$success = TRUE;
+	}*/
+	
+	
+	drupal_set_header('Content-Type: application/json');
+	
+	if ($success) {
+		drupal_json(array("success" => TRUE, "error" => "", "included_id" => $included_id));
+	} else {
+		drupal_json(array("success" => FALSE, "error" => "Something wrong happened"));
+	}
+}
+
+function reliefwebapi_edit() {
+	$target_id = arg(5);
+	
+	$asset_path = drupal_get_path('module', 'reliefwebapi');
+    drupal_add_css($asset_path . '/css/add.css');
+	drupal_add_js($asset_path . '/js/add.js');
+	
+	$filter = reliefwebapi_retrieve_filter($target_id);
+	return theme('reliefwebapi_add', $filter);
+}
+
+function reliefwebapi_delete() {
+	$id = arg(5);
+	
+	if ($id) {
+		$target_filter = reliefwebapi_retrieve_filter($id);
+		db_delete('reliefweb')
+			->condition('rid', $id)
+			->execute();
+			
+		drupal_set_message('Deleted Filter: ' . $target_filter['name'], 'info');
+	}
+
+	drupal_goto('admin/config/content/reliefwebapi');
+}
+
+function reliefwebapi_add() {
+	$asset_path = drupal_get_path('module', 'reliefwebapi');
+    drupal_add_css($asset_path . '/css/add.css');
+	drupal_add_js($asset_path . '/js/add.js');
+	
+	return theme('reliefwebap_add', array(
+				"id" => NULL, 
+				"name" => NULL, 
+				"primary_country" => NULL,
+				"country" => array(),
+				"organisation" => array(),
+				"theme" => array(),
+				"disaster_type" => array(),
+				"vulnerable_groups" => array(),
+				"content_format" => array(), 
+				"language" => array(), 
+				"published_date" => array(),
+				
+				"post_num_on_list" => 1,
+				"post_num_on_single" => 10,
+				"show_thumb_on_list" => 0,
+				"show_thumb_on_single" => 0,
+				"show_blurb_on_list" => 0,
+				"show_blurb_on_single" => 0,
+				"list_view_design" => "LIST"
+			));
+}
+
+function reliefwebapi_insert() {
+	
+	//$category = t($_POST['rwapi-category']);
+	$id = isset($_POST['rwapi-filter-id']) ? t($_POST['rwapi-filter-id']) : NULL;
+	
+	$filter_name = t($_POST['rwapi-filter-name']);
+	
+	$primary_country = isset($_POST['rwapi-chosen-primary-country']) ? t($_POST['rwapi-chosen-primary-country']) : NULL;
+	$countries = isset($_POST['rwapi-chosen-country']) ? $_POST['rwapi-chosen-country'] : NULL;
+	$organisations = isset($_POST['rwapi-chosen-organisation']) ? $_POST['rwapi-chosen-organisation'] : NULL;
+	$themes = isset($_POST['rwapi-chosen-theme']) ? $_POST['rwapi-chosen-theme'] : NULL;
+	$disaster_types = isset($_POST['rwapi-chosen-disaster-type']) ? $_POST['rwapi-chosen-disaster-type'] : NULL;
+	$vulnerable_groups = isset($_POST['rwapi-chosen-vulnerable-groups'])  ? $_POST['rwapi-chosen-vulnerable-groups'] : NULL;
+	$formats = isset($_POST['rwapi-content-type']) ? $_POST['rwapi-content-type'] : NULL;
+	$languages = isset($_POST['rwapi-language']) ? $_POST['rwapi-language'] : NULL;
+	$published_date = isset($_POST['rwapi-published-date']) ? $_POST['rwapi-published-date'] : NULL;
+	
+	//Design Options
+	$list_count = isset($_POST['rwapi-filter-list-cnt']) ? $_POST['rwapi-filter-list-cnt'] : NULL;
+	$view_count = isset($_POST['rwapi-filter-view-cnt']) ? $_POST['rwapi-filter-view-cnt'] : NULL;
+	$show_thumb_list = isset($_POST['rwapi-filter-show-thumb-list']) ? $_POST['rwapi-filter-show-thumb-list'] : NULL;
+	$show_thumb_view = isset($_POST['rwapi-filter-show-thumb-view']) ? $_POST['rwapi-filter-show-thumb-view'] : NULL;
+	$show_blurb_list = isset($_POST['rwapi-filter-show-blurb-list']) ? $_POST['rwapi-filter-show-blurb-list'] : NULL;
+	$show_blurb_view = isset($_POST['rwapi-filter-show-blurb-view']) ? $_POST['rwapi-filter-show-blurb-view'] : NULL;
+	$list_design = isset($_POST['rwapi-filter-list-design']) ? $_POST['rwapi-filter-list-design'] : NULL;
+	
+	$fields = array(
+			"name" => $filter_name, 
+			"primary_country" => $primary_country, 
+			"country" => $countries ? implode("|", $countries) : "",
+			"organisation" => $organisations ? implode("|", $organisations) : "", 
+			"theme" => $themes ? implode("|", $themes) : "",  
+			"disaster_type" => $disaster_types ? implode("|", $d*saster_types) : "",
+			"vulnerable_groups" => $vulnerable_groups ? implode("|", $vulnerable_groups) : "",
+			"content_format" => $formats ? implode("|", $formats) : "",
+			"language" => $languages ? implode("|", $languages) : "",
+			"published_date" => $published_date ? implode("|", $published_date) : "",
+			
+			//Design Options
+			"post_num_on_list" => $list_count,
+			"post_num_on_single" => $view_count,
+			"show_thumb_on_list" => $show_thumb_list,
+			"show_thumb_on_single" => $show_thumb_view,
+			"show_blurb_on_list" => $show_blurb_list,
+			"show_blurb_on_single" => $show_blurb_view,
+			
+			"list_view_design" => $list_design
+		);
+		
+	if (!$id) {
+		reliefweb_insert('reliefweb')
+		->fields($fields)
+		->execute();
+	} else { //update
+		reliefweb_udpate('reliefweb')
+		->fields($fields)
+		->condition('rid', $id)
+		->execute();
+	}
+	if ($id) {
+		drupal_set_message('Created Filter: ' . $filter_name, 'info');	
+	} else {
+		drupal_set_message('Updated Filter: ' . $filter_name, 'info');
+	}
+    drupal_goto('admin/config/content/reliefwebapi');
+}
+
+function reliefweb_UPDATE($fields) {
+	db_query("UPDATE {reliefweb} (" . implode(", ", array_keys($fields)) . ") 
+				VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
+				", array_values($fields)
+			);
+}
+
+function reliefweb_insert($fields) {
+	db_query("INSERT INTO {reliefweb} (" . implode(", ", array_keys($fields)) . ") 
+				VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
+				", array_values($fields)
+			);
+}
+
+
+
+function reliefwebapi_theme() {
+	$path = drupal_get_path('module', 'reliefwebapi');
+	
+	
+	return array(
+		'reliefwebapi_add' => array(
+			'template' => 'add',
+			'arguments' => array('filter' => NULL),
+			'path' => "$path/theme"
+		), 
+		//This theme is used for the view block
+		'reliefwebapi_filters_list' => array(
+			'template' => 'list', 
+			'arguments' => array("items" => NULL),
+			'path' => "$path/theme"
+		),
+		
+		//This shows the list of all the content from reliefweb
+		'reliefwebapi_list_all' => array(
+			'template' => 'list_all',
+			'arguments' => array("filter" => NULL, "offset" => 0, "limit" => 10),
+			'path' => "$path/theme"
+		),
+		
+		//CONFIG :: This theme is used for the retrieval of all filters for review.
+		'reliefwebapi_view_all_filters' => array(
+			'template' => 'view_all_filters',
+			'arguments' => array("filters" => NULL), 
+			'path' => "$path/theme"
+		)
+	);
+}

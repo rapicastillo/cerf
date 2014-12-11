@@ -1,0 +1,302 @@
+<?php
+// $Id$
+/**
+ * Implementation of hook_perm()
+ */
+function ctoolscustomplugins_perm() {
+  return array(
+    'upload files in panels',
+    'upload images in panels',
+  );
+}
+
+/**
+ * Implementation of hook_menu()
+ */
+function ctoolscustomplugins_menu() {
+  $items['admin/settings/ctoolscustomplugins'] = array(
+    'title' => 'Chaos Tools Custom Plugins File uploads',
+    'description' => 'Control how files may be attached to content.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ctoolscustomplugins_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'ctoolscustomplugins.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implementation of ctools_plugin_directory
+ */
+function ctoolscustomplugins_ctools_plugin_directory($module, $plugin) {
+ if ($module == 'ctools') {
+    return 'plugins/' . $plugin;
+  }
+}
+
+/**
+ * Implementation of hook_theme()
+ */
+function ctoolscustomplugins_theme() {
+  return array(
+    'panel_file' => array(
+      'arguments' => array('title' => NULL, 'file' => NULL, 'css' => NULL, 'alt' => NULL),
+    ),
+    'panel_file_preview' => array(
+      'arguments' => array('file' => NULL),
+    ),
+    'panel_image' => array(
+      'arguments' => array(),
+    ),
+    'panel_image_preview' => array(
+      'arguments' => array('filepath' => NULL),
+    ),
+    'panel_link' => array(
+      'arguments' => array(),
+    ),
+    'panel_textfield' => array(
+      'arguments' => array('text' => NULL, 'css' => NULL),
+    ),
+    'panel_emvideo' => array(
+      'arguments' => array(),
+    ),
+  );
+}
+
+/**
+ * Return a file in HTML
+ *
+ * @param $title
+ * The title to show instead the filename
+ *
+ * @param $file
+ * Filepath to the file being shown
+ *
+ * @param $css
+ * CSS Class to use.
+ *
+ * @param $alt
+ * Alt title for the file.
+ *
+ * @return
+ * An html representation of the file
+ */
+function theme_panel_file($title = NULL, $file, $css = NULL, $alt = NULL) {
+  return '<span class="'. check_plain($css) .'"></span><span class="ctoolscustomplugins-file ctoolscustomplugins-file-'.check_plain($css).'">' . l(t($title), file_create_url($file['filepath']), $options = array('absolute' => TRUE, 'attributes' => array('class' => $css, 'alt' => $alt, 'title' => t($alt)))) . '</span>';
+}
+
+/**
+ * Return a file preview in HTML
+ *
+ * @param $file
+ * The file object
+ *
+ * @return
+ * A table containing the $file data
+ */
+function theme_panel_file_preview($file) {
+  $header = array(t('Attachment'), t('Path'), t('Type'), t('Uploaded'), t('Size'));
+  $rows = array();
+  $file = (object)$file;
+  $href = file_create_url($file->filepath);
+  $text = $file->description ? $file->description : $file->filename;
+  $rows[] = array(l($text, $href), file_create_url($file->filepath), $file->filemime, format_date($file->timestamp, 'medium'), format_size($file->filesize));
+  
+  return theme('table', $header, $rows, array('id' => 'attachments'));
+}
+
+/**
+ * Return an image in HTML
+ *
+ * @param $image
+ * The image object. It contains:
+ * -- $image['filename']
+ * -- $image['filepath']
+ * -- $image[''filemime']
+ * -- $image['filesize']
+ * -- $image['uid']
+ * -- $image['timestamp']
+ * -- $image['fid']
+ *
+ * @param $image_description
+ * The image description
+ *
+ * @param $image_caption
+ * The image caption
+ *
+ * @param $image_css
+ * The image css class to apply to the img
+ *
+ * @param $image_preset
+ * The image preset to use to format the image. It can be NULL, in this case
+ * the original image size will be used
+ *
+ * @param $link_uri
+ * If this field is set, the image will become a link.
+ *
+ * @param $link_target
+ * on/off to know if the link will open in a new window
+ *
+ * @param $link_css
+ * The css class to apply to the link
+ *
+ * @param $link_rel
+ * The rel
+ *
+ * @return
+ * An html of the image
+ */
+function theme_panel_image($image, $image_description = NULL, $image_caption = NULL, $image_css = NULL, $image_preset = NULL, $link_uri = NULL, $link_target = NULL, $link_css = NULL, $link_rel = NULL) {
+  $output = '';
+  if(module_exists('imagecache')) {
+    $preset = imagecache_preset($image_preset, $reset = FALSE);  
+  }
+  
+  // If the image is a link
+  if($link_uri) {
+    if($link_target) {
+      $target = '_blank';
+    }
+    else {
+      $target = '';
+    }
+   
+    if(!empty($preset['presetname'])) {
+      $output .= l(theme_imagecache($preset['presetname'], $image['filename'], $image_description, $image_caption), $link_uri, $options = array('html' => TRUE, 'attributes' => array('class' => $link_css, 'rel' => $link_rel, 'target' => $target, 'title' => $image_description)));
+    }
+    else {
+      $output .= l(theme_image($image['filepath'], $image_description, $image_caption), $link_uri, $options = array('html' => TRUE, 'attributes' => array('class' => $link_css, 'rel' => $link_rel, 'target' => $target, 'title' => $image_description)));
+    }
+  }
+  
+  // If the image is not a link
+  else {
+    if(!empty($preset['presetname'])) {
+      $output .= theme_imagecache($preset['presetname'], $image['filename'], $image_description, $image_caption, $attributes = array('class' => $image_css)); 
+    }
+    else {
+      $output .= theme_image($image['filepath'], $image_description, $image_caption, $attributes = array('class' => $image_css));
+    }
+  }
+  
+  if($image_caption) {
+    $output .= '<div class="image-caption">' . t($image_caption) . '</div>';
+  }
+  
+  return $output;
+}
+
+/**
+ * Return an image in HTML
+ *
+ * @param $image
+ * The image object
+ *
+ * @return
+ * An html representation of the image always at the same width.
+ */
+function theme_panel_image_preview($image) {
+  return '<img src="'. file_create_url($image->filepath) .'" width="150" />';
+}
+
+/**
+ * Return a file preview in HTML
+ *
+ * @param $uri
+ * The link URI
+ *
+ * @param $title
+ * The title to use instead of the URI
+ *
+ * @param $target
+ * On/off to know if the link will open in a new window
+ *
+ * @param $css
+ * The css class to apply to the span
+ *
+ * @return
+ * A table containing the $file data
+ */
+function theme_panel_link($uri, $title = NULL, $target = NULL, $css = NULL, $rel = NULL) {
+  $output = '';
+  
+  if($target) {
+    $linktarget = '_blank';
+  }
+  else {
+    $linktarget = '';
+  }
+  
+  if(!empty($title)) {
+    $output .= '<span class="'.$css.'"></span><span class="ctoolscustomplugins-link ctoolscustomplugins-link-'.$css.'">' . l($title, $uri, $options = array('attributes' => array('class' => $css, 'target' => $linktarget, 'title' => $title, 'rel' => $rel))) . '</span>';  
+  }
+  else {
+    $output .= '<span class="'.$css.'"></span><span class="ctoolscustomplugins-link ctoolscustomplugins-link-'.$css.'">' . l($uri, $uri, $options = array('attributes' => array('class' => $css, 'target' => $linktarget, 'title' => $title, 'rel' => $rel))) . '</span>';  
+  }
+  
+  return $output;
+}
+
+/**
+ * Return a textfield in HTML
+ *
+ * @param $text
+ * The text to be printed
+ * 
+ * @param $css
+ * The css class to apply to the span
+ */
+function theme_panel_textfield($text, $css = NULL) {
+  if($css) {
+    return '<span class="'. $css .'"></span><span class="ctoolscustomplugins-textfield ctoolscustomplugins-textfield-'.$css.'">' . t($text) . '</span>';
+  }
+  else {
+    return '<span class="ctoolscustomplugins-textfield">'. t($text) . '</span>';
+  }
+}
+
+/**
+ * Return an embedded video in HTML
+ *
+ * @param $video_url
+ * The URL to the video hosted on Youtube, Vimeo, Blip.tv, etc
+ *
+ * @param $width
+ * The width of the video
+ *
+ * @param $height
+ * The height of the video
+ *
+ * @param $caption
+ * The caption of the video
+ *
+ * @param $css
+ * The css class to apply to the video
+ *
+ * @return
+ * The embedded video
+ */
+function theme_panel_emvideo($video_url, $width = NULL, $height = NULL, $caption = NULL, $css = NULL) {
+  $output = '';
+  
+  if(empty($width)) {
+    $width = "425";
+  }
+  if(empty($height)) {
+    $height = "350";
+  }
+  
+  $text = "[video:{$video_url} width:{$width} height:{$height}]";
+  if(module_exists("video_filter")) {
+    $output .= "<span class='{$css}'></span><span class='ctoolscustomplugins-emvideo-{css}'>" . video_filter_process($text) . "</span>";
+    if(!empty($caption)) {
+      $output .= "<div class='ctoolscustomplugins-emvideo-caption'>" . $caption . "</div>";  
+    }
+  }
+  else {
+    $output .= t("Video filter not configured");  
+  }
+  
+  return $output;
+}

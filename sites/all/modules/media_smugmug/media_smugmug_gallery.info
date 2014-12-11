@@ -1,0 +1,14 @@
+; $Id: media_smugmug_gallery.info,v 1.1 2010/04/05 03:42:35 winston Exp $
+
+name = Media: Smugmug Gallery
+description = Embedded Media Field provider file for Smugmug.com gallery displays
+core = 6.x
+dependencies[] = emvideo
+package = Media
+
+; Information added by drupal.org packaging script on 2010-04-05
+version = "6.x-1.1"
+core = "6.x"
+project = "media_smugmug"
+datestamp = "1270443306"
+

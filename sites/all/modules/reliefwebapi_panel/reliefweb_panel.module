@@ -1,0 +1,96 @@
+<?php
+// $Id: reliefweb_panel.module,v 1.2 2009/02/11 16:49:35 rfay Exp $
+
+
+/*
+ * @file
+ *
+ * Working sample module to demonstrate Ctools 3 plugins
+ *
+ * This sample module is only intended to demonstrate how external modules can provide
+ * ctools 3 plugins. There is no useful functionality, and it's only intended for
+ * developers or for educational use.
+ *
+ * As far as possible, everything is kept very simple, not exercising all of the
+ * capabilities of Ctools or Panels.
+ *
+ * Although the ctools documentation suggests that strict naming conventions
+ * be followed, this code attemps to follow only the conventions which are required
+ * (the hooks), in order to demonstrate the difference. You can certainly use the conventions,
+ * but it's important to know the difference between a convention and a requirement.
+ *
+ * The advanced_help module is required, because both Ctools and this module provide help
+ * that way.
+ *
+ * There is a demonstration panel provided at /reliefweb_panel/xxxxx
+ *
+ */
+
+
+
+/**
+ * Implementation of hook_menu
+ */
+function reliefweb_panel_menu() {
+  $items = array();
+
+  $items["admin/settings/reliefweb_panel"] = array(
+      'title' => 'ReliefWeb API Interface',
+      'description' => t("Demonstration code, advanced help, and a demo panel to show how to build ctools plugins."),
+      'page callback' => 'reliefweb_panel_explanation_page',
+      'access arguments' => array('administer site configuration'),
+      'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+
+/**
+ * Implementation of hook_ctools_plugin_directory().
+ * It simply tells panels where to find the .inc files that define various args, contexts, content_types
+ * In this case the subdirectories of reliefweb_panel/panels are used
+ */
+function reliefweb_panel_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && !empty($plugin)) {
+    return "plugins/$plugin";
+  }
+}
+
+
+/**
+ * Implement hook_ctools_plugin_api().
+ * If you do this, Ctools will pick up default panels pages in
+ * <modulename>.pages_default.inc
+ */
+function reliefweb_panel_ctools_plugin_api($module, $api) {
+  if ($module == 'panels_mini' && $api == 'panels_default') {
+    return array('version' => 1);
+  }
+  if ($module == 'page_manager' && $api == 'pages_default') {
+    return array('version' => 1);
+  }
+}
+
+/**
+ * Just provide an explanation page for the admin section
+ * @return unknown_type
+ */
+function reliefweb_panel_explanation_page() {
+  $demo_panel = l("Ctools Demo Panel",'reliefweb_panel/xxxxx');
+  $ctools_help = theme('advanced_help_topic', 'ctools', 'plugins', 'title');
+  $reliefweb_panel_help = theme('advanced_help_topic','reliefweb_panel','Chaos-Tools--Ctools--Plugin-Examples','title');
+  $path = drupal_get_path('module','reliefweb_panel');
+  $content .= <<<END
+  <p>The Ctools Plugin Example is simply a developer's demo of how to create plugins for Ctools.
+  It provides no useful functionality for an ordinary user.
+  </p>
+  <p>There is a demo panel demonstrating much of the functionality provided at
+  $demo_panel, and you can find documentation on the examples at $reliefweb_panel_help.
+  Ctools itself provides documentation at $ctools_help. Mostly, though, the code itself
+  is intended to be the teacher. You can find it at <i>$path</i>.</p>
+
+END;
+  return $content;
+
+}

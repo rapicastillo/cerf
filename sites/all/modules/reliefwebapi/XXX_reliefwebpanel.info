@@ -1,0 +1,9 @@
+name = ReliefWeb CTools plugin Panel item
+description = Panel for Relief Web
+package = ReliefWeb Interface Suite
+dependencies[] = ctools
+dependencies[] = panels
+dependencies[] = page_manager
+dependencies[] = advanced_help
+dependencies[] = reliefwebapi
+core = 6.x

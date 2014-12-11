@@ -1,0 +1,31 @@
+#reliefwebapi-block-items-filter-list 
+div.rwapi-item-square {
+	width: 200px; 
+	display: inline-block;
+	vertical-align: top;
+	text-align: center;
+	margin-right: 10px;	
+}
+
+.rwapi-more-link {
+	text-align: right;
+}
+
+h4.rwapi-filter-art-tit {
+	font-size: 10px;
+	text-align: left;
+}
+
+.rwapi-more-link {
+	font-size: 12px;
+	text-align: right;
+}
+
+.rwapi-filter-art-spi {
+	font-size: 10px;
+	line-height: 15px !important;
+	letter-spacing: 0px;
+	display: inline-block;
+	
+	max-height: 50px;
+}

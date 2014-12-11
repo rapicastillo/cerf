@@ -1,0 +1,88 @@
+
+/* hide any HRs used in the layout, but show them in main content */
+hr,
+.ahem,
+#skip-link {
+  display: none;
+}
+#main hr {
+  display: block;
+}
+
+/* uncomment these color rules to make the layout easier to see */
+/*
+#container     { background: #ccc; }
+#main          { background: #eee; }
+#sidebar-left  { background: #ccf; }
+#sidebar-right { background: #fcc; }
+#navigation    { background: #ffc; }
+#header        { background: #cff; }
+#footer        { background: #cfc; }
+*/
+
+/* Holy Grail Layout ---------------------------------------------------------
+   ref: http://www.alistapart.com/articles/holygrail
+   This layout takes advantage of negative margins to float the sidebars to
+   either side of the main content. It also floats the navigation above the
+   content, but you could just as easily absolutely position it.
+   
+   LC stands for Left Column, RC for Right Column
+   
+   Obvously, this layout is for left-to-right languages. For a
+   right-to-left layout, just swap all the left and rights below.
+   */
+#page {
+  width: 980px;
+  margin: 0 auto;
+}
+#main,
+#navigation,
+#sidebar-left,
+#sidebar-right {
+  float: left;
+}
+.with-navigation #main,
+.with-navigation #sidebar-left {
+  margin-top: 3em;       /* NAV height */
+}
+#navigation {
+  height: 30px;           /* NAV height */
+  width: 100%;
+   padding: 4px 0;
+ margin-right: -100%;
+z-index: 9999;
+}
+#main {
+  width: 100%;
+  margin-right: -100%;
+  z-index: 1;
+}
+.sidebar-left #main-squeeze {
+  padding-left: 200px;   /* LC width */
+}
+.sidebar-right #main-squeeze {
+  padding-right: 282px;  /* RC width */
+}
+.two-sidebars #main-squeeze {
+  padding-left: 200px;   /* LC width */
+  padding-right: 160px;  /* RC width */
+}
+#sidebar-left {
+  width: 200px;          /* LC width */
+  margin-right: -200px;
+}
+#sidebar-right {
+  float: right;
+  width: 240px;          /* RC width */
+  margin-left: -160px;   /* RC width */
+  padding-left: 20px;
+  border-left: thin solid silver;
+  margin-top: 130px;
+}
+#footer {
+  clear: both;
+}
+/* IE6 fix */
+* html #sidebar-left {
+  left: 160px;           /* RC width */
+}

@@ -1,0 +1,8 @@
+name = ReliefWeb Panel Manager
+description = Shows how an external module for reliefweb interface
+package = ReliefWeb Interface Suite
+dependencies[] = ctools
+dependencies[] = panels
+dependencies[] = page_manager
+dependencies[] = reliefwebapi
+core = 6.x

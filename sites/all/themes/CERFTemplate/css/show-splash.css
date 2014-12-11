@@ -1,0 +1,31 @@
+#whd-clickthrough
+{
+position: absolute;
+left: 30px;
+top: 130px;
+color: white;
+background-color: #23b1ef;
+padding: 6px 12px;
+font-size: 13px;
+border-radius: 3px;
+}
+
+#moh-clickthrough
+{
+position: absolute;
+left: 30px;
+top: 180px;
+color: white;
+background-color: #23b1ef;
+padding: 6px 12px;
+font-size: 13px;
+border-radius: 3px;
+}
+
+#whd-splash
+{
+   position: relative;
+}
+
+.tmask { z-index: 999 !important; }
+.tbox { z-index: 1000 !important; }
