@@ -1,6 +1,7 @@
 <?php
 
 /**
+ *  XXXXX 
  * @file
  * Administrative page for handling updates from one Drupal version to another.
  *
