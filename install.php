@@ -4,7 +4,7 @@ require_once './includes/install.inc';
 
 define('MAINTENANCE_MODE', 'install');
 
-#Hello Nikki
+#Hello Nikki How are you
 /**
  * The Drupal installation happens in a series of steps. We begin by verifying
  * that the current environment meets our minimum requirements. We then go
